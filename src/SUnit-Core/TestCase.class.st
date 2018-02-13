@@ -107,6 +107,7 @@ TestCase class >> assertionlessTestsShouldFailSettingOn: aBuilder [
 
 { #category : #'building suites' }
 TestCase class >> buildSuite [
+	"Returns a suite of test case. This suite can be composed of local and inherited methods if the superclass is declared as abstract."
 	| suite |
 	^self isAbstract
 		ifTrue: 
@@ -477,7 +478,8 @@ TestCase class >> resources [
 
 { #category : #'instance creation' }
 TestCase class >> run: aSymbol [
-
+	"Execute a testcase name, aSymbol, and return a test result."
+	
 	^(self selector: aSymbol) run
 ]
 
@@ -491,7 +493,7 @@ TestCase class >> runAllAndLogResult [
 
 { #category : #'instance creation' }
 TestCase class >> selector: aSymbol [
-
+	"Return a test case with aSymbol as selector but does not execute it."
 	^self new setTestSelector: aSymbol
 ]
 
@@ -537,7 +539,7 @@ TestCase class >> storedMethodRaisedError: aSelector [
 
 { #category : #'instance creation' }
 TestCase class >> suite [
-
+	"Return a test suite"
 	^self buildSuite
 ]
 
@@ -659,6 +661,12 @@ TestCase >> logFailure: aString [
 			
 ]
 
+{ #category : #'CI support' }
+TestCase >> onPharoCITestingEnvironment [
+	
+	^ Smalltalk os environment at: 'PHARO_CI_TESTING_ENVIRONMENT' ifPresent: [ true ] ifAbsent: [ false ]
+]
+
 { #category : #running }
 TestCase >> openDebuggerOnFailingTestMethod [
 	"SUnit has halted one step in front of the failing test method. Step over the 'self halt' and 
@@ -728,6 +736,7 @@ TestCase >> resources [
 
 { #category : #running }
 TestCase >> run [
+	"Execute the receiver and return a test result."
 	| result |
 	result := self classForTestResult new.
 	[ result runCase: self]
@@ -774,6 +783,7 @@ TestCase >> setTestSelector: aSymbol [
 
 { #category : #running }
 TestCase >> setUp [
+	"Hooks that subclasses may override to define the fixture of test."
 ]
 
 { #category : #events }
@@ -786,10 +796,16 @@ TestCase >> shouldPass [
 	^self isExpectedFailure not
 ]
 
+{ #category : #'CI support' }
+TestCase >> skipOnPharoCITestingEnvironment [
+	
+	self onPharoCITestingEnvironment 
+		ifTrue: [ self skip ].
+]
+
 { #category : #running }
 TestCase >> tearDown [
-
-	
+	"Hooks that subclasses may override to clean the fixture of test."
 ]
 
 { #category : #accessing }
