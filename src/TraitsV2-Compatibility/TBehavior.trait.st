@@ -36,12 +36,17 @@ TBehavior >> addObsoleteSubclass: aClass [
 
 { #category : #'adding/removing methods' }
 TBehavior >> addSelector: selector withMethod: compiledMethod [ 
-	^ self addSelector: selector withMethod: compiledMethod notifying: nil
+	^ self addSelectorSilently: selector withMethod: compiledMethod
 ]
 
 { #category : #'adding/removing methods' }
 TBehavior >> addSelector: selector withMethod: compiledMethod notifying: requestor [
-	^ self addSelectorSilently: selector withMethod: compiledMethod
+	self
+		deprecated: 'Please use #addSelector:withMethod: instead'
+		transformWith:
+			'`@receiver addSelector: `@statements1 withMethod: `@statements2 notifying: `@statements3'
+		   -> '`@receiver addSelector: `@statements1 withMethod: `@statements2'.
+	^ self addSelector: selector withMethod: compiledMethod
 ]
 
 { #category : #'adding/removing methods' }
@@ -374,8 +379,6 @@ TBehavior >> basicAddSelector: selector withMethod: compiledMethod [
 	receiver's method dictionary.
 	Do this without sending system change notifications"
 
-	| oldMethodOrNil |	
-	oldMethodOrNil := self lookupSelector: selector.
 	self methodDict at: selector put: compiledMethod.
 	compiledMethod methodClass: self.
 	compiledMethod selector: selector.
@@ -403,13 +406,10 @@ TBehavior >> basicObsoleteSubclasses [
 ]
 
 { #category : #'adding/removing methods' }
-TBehavior >> basicRemoveSelector: selector [ 
-	"Assuming that the argument, selector (a Symbol), is a message selector 
-	in my method dictionary, remove it and its method."
+TBehavior >> basicRemoveSelector: aSelector [ 
+	"Assuming that the argument, selector (a Symbol), is a message selector in my method dictionary, remove it and its method."
 
-	| oldMethod |
-	oldMethod := self methodDict at: selector ifAbsent: [^ self].
-	self methodDict removeKey: selector.
+	self methodDict removeKey: aSelector ifAbsent: []
 ]
 
 { #category : #private }

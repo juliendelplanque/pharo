@@ -153,6 +153,12 @@ BehaviorTest >> testIsAbstract [
 ]
 
 { #category : #tests }
+BehaviorTest >> testIsReferenced [
+	self assert: Object isReferenced.
+	self deny: Object class isReferenced
+]
+
+{ #category : #tests }
 BehaviorTest >> testIsRootInEnvironment [
 	self assert: ProtoObject isRootInEnvironment.
 	self deny: Object isRootInEnvironment
@@ -203,9 +209,9 @@ BehaviorTest >> testMethodsWritingSlot [
 
 { #category : #metrics }
 BehaviorTest >> testNumberOfInstanceVariables [
-	self assert: Object numberOfInstanceVariables = 0.
-	self assert: Point numberOfInstanceVariables = 2.
-	self assert: Metaclass numberOfInstanceVariables = 3
+	self assert: Object numberOfInstanceVariables equals: 0.
+	self assert: Point numberOfInstanceVariables equals: 2.
+	self assert: Metaclass numberOfInstanceVariables equals: 1
 ]
 
 { #category : #'tests - properties' }
@@ -230,6 +236,26 @@ BehaviorTest >> testRemoveProperty [
 BehaviorTest >> testWhichSelectorsAccess [
 	self assert: ((Point whichSelectorsAccess: 'x') includes: #x).
 	self deny:  ((Point whichSelectorsAccess: 'y') includes: #x).
+]
+
+{ #category : #tests }
+BehaviorTest >> testWhichSelectorsAccessFindSlots [
+	| cls |
+	cls := Object newAnonymousSubclass.
+	cls := cls addSlot: #regularIvar.
+	cls := cls addSlot: #slotIvar => PropertySlot.
+	cls
+		compile:
+			'initialize 
+		super initialize.
+	
+		regularIvar := 4.
+		slotIvar := 2.
+	'.
+	self
+		assert: (cls whichSelectorsAccess: #regularIvar) size equals: 1;
+		assert: (cls whichSelectorsAccess: #slotIvar) size equals: 1;
+		assert: (cls whichSelectorsAccess: #notAnIvar) equals: #()
 ]
 
 { #category : #tests }

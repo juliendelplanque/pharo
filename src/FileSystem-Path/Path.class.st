@@ -17,7 +17,7 @@ Class {
 	#name : #Path,
 	#superclass : #Object,
 	#type : #variable,
-	#category : #'FileSystem-Path'
+	#category : #'FileSystem-Path-Base'
 }
 
 { #category : #'instance creation' }
@@ -228,6 +228,11 @@ Path >> = other [
 	^ self species = other species
 		and: [self size = other size
 			and: [(1 to: self size) allSatisfy: [:i | (self at: i) = (other at: i)]]]
+]
+
+{ #category : #converting }
+Path >> asPath [
+	^ self
 ]
 
 { #category : #converting }

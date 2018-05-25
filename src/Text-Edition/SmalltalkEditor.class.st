@@ -200,41 +200,41 @@ SmalltalkEditor class >> smalltalkEditorMenuOn: aBuilder [
 
 { #category : #'menu declaration' }
 SmalltalkEditor class >> smalltalkEditorShiftedMenuOn: aBuilder [ 
-	"Specify the menu used when writing code. Try it with:
-	(PragmaMenuBuilder 
-		pragmaKeyword: 'smalltalkEditorShiftedMenu'
-		model: nil) menu popUpInWorld"
+	"Specify the menu used when writing code. Try it with:"
+	
+	<script: '(PragmaMenuBuilder 
+		pragmaKeyword: ''smalltalkEditorShiftedMenu''
+		model: nil) menu popUpInWorld'>
 
 	<contextMenu>
 	<smalltalkEditorShiftedMenu>
 
-	(aBuilder item: #'browse it' translated) 
+	(aBuilder item: #'Browse it' translated) 
 		keyText: 'b';
 		selector: #browseIt.
-	(aBuilder item: #'senders of it' translated) 
+	(aBuilder item: #'Senders of it' translated) 
 		keyText: 'n';
 		selector: #sendersOfIt.
-	(aBuilder item: #'implementors of it' translated) 
+	(aBuilder item: #'Implementors of it' translated) 
 		keyText: 'm';
 		selector: #implementorsOfIt.
-	(aBuilder item: #'references to it' translated) 
+	(aBuilder item: #'References to it' translated) 
 		keyText: 'N';
 		selector: #referencesToIt; 
 		withSeparatorAfter.
-	(aBuilder item: #'selectors containing it' translated) 
+	(aBuilder item: #'Selectors containing it' translated) 
 		keyText: 'W';
 		selector: #methodNamesContainingIt.
-	(aBuilder item: #'method literal strings with it' translated) 
+	(aBuilder item: #'Method literal strings with it' translated) 
 		keyText: 'E';
 		selector: #methodStringsContainingit.
-	(aBuilder item: #'method source with it' translated) 
+	(aBuilder item: #'Method source with it' translated) 
 		selector: #methodSourceContainingIt; 
 		withSeparatorAfter.
-	(aBuilder item: #'class names containing it' translated) 
+	(aBuilder item: #'Class names containing it' translated) 
 		selector: #classNamesContainingIt.
-	(aBuilder item: #'class comments with it' translated) 
-		selector: #classCommentsContainingIt.
-
+	(aBuilder item: #'Class comments with it' translated) 
+		selector: #classCommentsContainingIt
 ]
 
 { #category : #'typing/selecting keys' }
@@ -315,19 +315,14 @@ SmalltalkEditor >> codeCompletionAround:  aBlock textMorph:  aTextMorph keyStrok
 
 { #category : #'do-its' }
 SmalltalkEditor >> compileSelectionFor: anObject in: evalContext [
-	| methodNode  |
-
-	methodNode :=  self class compiler
+	^self class compiler
 		source: self selectionAsStream;
 		class: anObject class;
 		context: evalContext;
 		requestor: self morph;
 		noPattern: true;
 		failBlock:  [ ^nil ];
-		translate.
-			
-	^methodNode generateWithSource.
-	
+		compile.
 ]
 
 { #category : #'do-its' }
@@ -529,32 +524,11 @@ SmalltalkEditor >> internalCallToBrowse: aSelector [
 ]
 
 { #category : #'menu messages' }
-SmalltalkEditor >> internalCallToBrowseIt [
-	"Launch a browser for the class indicated by the current selection. 
-	If multiple classes matching the selection exist, let the user choose among them."
- 
-	self lineSelectAndEmptyCheck: [^ self].
-	self internalCallToBrowse: (self selection string copyWithoutAll: CharacterSet crlf)
-]
-
-{ #category : #'menu messages' }
 SmalltalkEditor >> internalCallToImplementorsOf: aSelector [
 	"Open an implementors browser on the given selector"
 	
 	 (model systemNavigation allImplementorsOf: aSelector) isEmpty
 				ifFalse: [ model systemNavigation browseAllImplementorsOf: aSelector]
-			
-	
-]
-
-{ #category : #'menu messages' }
-SmalltalkEditor >> internalCallToImplementorsOfIt [
-	"Open an implementors browser on the selected selector"
-
-	| aSelector |
-	self lineSelectAndEmptyCheck: [^ self].
-	(aSelector := self selectedSelector) == nil ifTrue: [^ morph flash].
-	self internalCallToImplementorsOf: aSelector.
 			
 	
 ]
@@ -696,14 +670,6 @@ SmalltalkEditor >> printIt [
 				on: Error
 				do: [ '<error in printString: try ''Inspect it'' to debug>' ].
 			self afterSelectionInsertAndSelect: printString ]
-]
-
-{ #category : #'editing keys' }
-SmalltalkEditor >> printIt: aKeyboardEvent [
-	"Print the results of evaluting the selection -- invoked via cmd-p.  If there is no current selection, use the current line.  1/17/96 sw
-	 2/29/96 sw: don't call selectLine now, since it's called by doIt"
-	self printIt.
-	^ true
 ]
 
 { #category : #'typing/selecting keys' }

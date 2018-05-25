@@ -221,11 +221,29 @@ TestCase class >> generateLastStoredRunMethod [
 ]
 
 { #category : #testing }
+TestCase class >> hasErrorTest [
+
+	^ (self history at: #errors) isEmpty not 
+]
+
+{ #category : #testing }
+TestCase class >> hasFailedTest [
+
+	^ (self history at: #failures) isEmpty not 
+]
+
+{ #category : #testing }
 TestCase class >> hasMethodBeenRun: aSelector [
 	^ ((self lastRun at: #errors),
 		(self lastRun at: #failures),
 		(self lastRun at: #passed))
 			includes: aSelector
+]
+
+{ #category : #testing }
+TestCase class >> hasPassedTest [
+
+	^ (self history at: #passed) isEmpty not 
 ]
 
 { #category : #testing }
@@ -454,7 +472,7 @@ TestCase class >> run: aSymbol [
 	^(self selector: aSymbol) run
 ]
 
-{ #category : #utility }
+{ #category : #utilities }
 TestCase class >> runAllAndLogResult [
 
 	"runs all tests in the image"

@@ -1,12 +1,12 @@
 Class {
 	#name : #ManifestOpalCompilerCore,
 	#superclass : #PackageManifest,
-	#category : #'OpalCompiler-Core'
+	#category : #'OpalCompiler-Core-Manifest'
 }
 
 { #category : #'meta-data - dependency analyser' }
 ManifestOpalCompilerCore class >> ignoredDependencies [
-	^ #(#Compiler #'Morphic-Base' #'System-Settings')
+	^ #(#'Morphic-Base' #'System-Settings')
 ]
 
 { #category : #'meta-data - dependency analyser' }

@@ -10,12 +10,11 @@ Class {
 		'subject',
 		'extent',
 		'layoutWidth',
-		'childsHeight',
 		'originX',
 		'originY',
 		'color'
 	],
-	#category : #'Athens-Examples'
+	#category : #'Athens-Examples-Utilities'
 }
 
 { #category : #accessing }
@@ -30,12 +29,12 @@ AthensSimpleTreeNode >> box: anObject [
 	box := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensSimpleTreeNode >> children [
 	^ children
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensSimpleTreeNode >> children: aCollection [
 
 	children := aCollection
@@ -70,7 +69,7 @@ AthensSimpleTreeNode >> height [
 	^ extent y
 ]
 
-{ #category : #accessing }
+{ #category : #private }
 AthensSimpleTreeNode >> layoutHorizontally: center [
 	| pos |
 	"position ourselves in the middle X"
@@ -102,12 +101,12 @@ AthensSimpleTreeNode >> layoutWidth [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensSimpleTreeNode >> midBottom [
 	^ originX +(extent x *0.5) @ (originY + extent y)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensSimpleTreeNode >> midTop [
 	^ originX +(extent x *0.5) @ originY 
 ]
@@ -127,7 +126,7 @@ AthensSimpleTreeNode >> originY: aNumber [
 	originY := aNumber
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #rendering }
 AthensSimpleTreeNode >> renderOn: aCanvas [
 
 	aCanvas setPaint: color.
@@ -161,7 +160,7 @@ AthensSimpleTreeNode >> renderOn: aCanvas [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : #defaults }
 AthensSimpleTreeNode >> spacingBetweenChilds [
 	^ 10
 ]

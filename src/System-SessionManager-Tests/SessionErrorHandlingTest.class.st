@@ -1,3 +1,6 @@
+"
+SUnit tests for session error handling
+"
 Class {
 	#name : #SessionErrorHandlingTest,
 	#superclass : #TestCase,
@@ -8,7 +11,7 @@ Class {
 	#category : #'System-SessionManager-Tests'
 }
 
-{ #category : #utility }
+{ #category : #utilities }
 SessionErrorHandlingTest >> newTestSessionfor: aManager [
 	^ TestWorkingSession new
 		manager: aManager;

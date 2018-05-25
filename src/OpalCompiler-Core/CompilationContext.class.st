@@ -349,8 +349,10 @@ CompilationContext >> bindings [
 ]
 
 { #category : #accessing }
-CompilationContext >> bindings: anObject [
-	bindings := anObject
+CompilationContext >> bindings: aDictionay [
+	"binding are LiteralVariables, not simple Associations"
+	bindings := (aDictionay associations
+		collect: [ :each | AdditionalBinding key: each key value: each value ]) asDictionary
 ]
 
 { #category : #accessing }
@@ -404,7 +406,7 @@ CompilationContext >> encoderClass: anObject [
 
 { #category : #accessing }
 CompilationContext >> environment [
-	^ environment
+	^ environment ifNil: [ environment := Smalltalk globals ]
 ]
 
 { #category : #accessing }
@@ -434,7 +436,7 @@ CompilationContext >> forSyntaxHighlighting: aBoolean [
 
 { #category : #accessing }
 CompilationContext >> getClass [
-	^ class
+	^ class ifNil: [ UndefinedObject ]
 ]
 
 { #category : #initialization }
@@ -602,7 +604,7 @@ CompilationContext >> requestorScopeClass: anObject [
 CompilationContext >> scope [
 	| newScope |
 
-	newScope := OCClassScope for: class.
+	newScope := (OCEnvironmentScope for: self environment) newClassScope: self getClass.
 	requestor ifNotNil: [
 		"the requestor is allowed to manage variables, the workspace is using it to auto-define vars"  
 		newScope := (self requestorScopeClass new

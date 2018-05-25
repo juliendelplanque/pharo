@@ -24,17 +24,17 @@ Class {
 	#category : #'Morphic-Base-Widgets'
 }
 
-{ #category : #utility }
+{ #category : #utilities }
 BalloonMorph class >> balloonColor [
 	^ BalloonColor ifNil: [BalloonColor := self defaultBalloonColor]
 ]
 
-{ #category : #utility }
+{ #category : #utilities }
 BalloonMorph class >> balloonFont [
 	^ StandardFonts balloonFont
 ]
 
-{ #category : #utility }
+{ #category : #utilities }
 BalloonMorph class >> balloonFont: aFont [
 	StandardFonts balloonFont: aFont
 ]
@@ -81,7 +81,7 @@ BalloonMorph class >> getTextMorph: aStringOrMorph for: balloonOwner [
 				ifNotNil: [text := Text
 								string: aStringOrMorph
 								attribute: (TextFontReference toFont: balloonOwner balloonFont)].
-			m := (TextMorph new contents: text) centered].
+			m := (TextMorph new contents: text) centered; color: UITheme current balloonTextColor].
 	m setToAdhereToEdge: #adjustedCenter.
 	^ m
 ]
@@ -104,7 +104,7 @@ BalloonMorph class >> initialize [
 	self balloonFont: StandardFonts defaultFont
 ]
 
-{ #category : #utility }
+{ #category : #utilities }
 BalloonMorph class >> setBalloonColorTo: aColor [ 
 	aColor ifNotNil: [BalloonColor := aColor]
 ]

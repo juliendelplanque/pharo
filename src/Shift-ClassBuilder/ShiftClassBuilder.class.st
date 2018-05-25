@@ -291,7 +291,7 @@ ShiftClassBuilder >> fillFor: aClass [
 		superclass: aClass superclass;
 		name: aClass getName;
 		layoutClass: aClass classLayout class;
-		slots: aClass slots ;
+		slots: aClass localSlots ;
 		sharedVariablesFromString: aClass classVariablesString;
 		sharedPools: aClass sharedPoolsString;
 		category: aClass category;
@@ -432,8 +432,13 @@ ShiftClassBuilder >> sharedVariables: aCollection [
 ]
 
 { #category : #accessing }
-ShiftClassBuilder >> sharedVariablesFromString: aString [ 
-	layoutDefinition sharedVariables:((aString substrings: ' ') collect: [:x | x asSymbol => ClassVariable]). 
+ShiftClassBuilder >> sharedVariablesFromString: aStringOrArray [
+	layoutDefinition sharedVariables: (aStringOrArray isString
+        ifTrue: [ (aStringOrArray substrings: ' ') collect: [ :x | x asSymbol => ClassVariable ] ]
+        ifFalse: [ aStringOrArray collect: [ :x | 
+                x isSymbol
+                    ifTrue: [ x => ClassVariable ]
+                    ifFalse: [ self error: 'Shared variables can only be String or an array of Symbols' ] ] ])
 ]
 
 { #category : #accessing }
