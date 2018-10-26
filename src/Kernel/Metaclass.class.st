@@ -7,8 +7,6 @@ My instances add instance-specific behavior to various class-describing objects 
 However there is a singularity at Object. Here the class hierarchy terminates, but the metaclass hierarchy must wrap around to Class, since ALL metaclasses are subclasses of Class. Thus,
 	Object superclass == nil, and
 	Object class superclass == Class.
-
-[Subtle detail] A class is know by name to an environment.  Typically this is the SystemDictionary named Smalltalk.  If we ever make lightweight classes that are not in Smalltalk, they must be in some environment.  Specifically, the code that sets 'wasPresent' in name:inEnvironment:subclassOf:instanceVariableNames:variable:words:pointers:classVariableNames:poolDictionaries:category:comment:changed: must continue to work.
 "
 Class {
 	#name : #Metaclass,
@@ -68,12 +66,6 @@ Metaclass >> adoptInstance: oldInstance from: oldMetaClass [
 		map: (self instVarMappingFrom: oldMetaClass)
 ]
 
-{ #category : #'accessing parallel hierarchy - deprecated' }
-Metaclass >> baseClass [
-
-	^thisClass.
-]
-
 { #category : #compiling }
 Metaclass >> binding [
 	"return an association that can be used as the binding
@@ -92,20 +84,15 @@ Metaclass >> bindingOf: varName [
 { #category : #testing }
 Metaclass >> canZapMethodDictionary [
 	"Return true if it is safe to zap the method dictionary on #obsolete"
-	self soleInstance == nil
-		ifTrue:[^true]
-		ifFalse:[^self soleInstance canZapMethodDictionary]
+
+	self soleInstance
+		ifNil: [ ^ true ]
+		ifNotNil: [ ^ self soleInstance canZapMethodDictionary ]
 ]
 
 { #category : #accessing }
 Metaclass >> category [
 	^ self instanceSide category
-]
-
-{ #category : #'accessing parallel hierarchy - deprecated' }
-Metaclass >> classClass [
-
-	^self
 ]
 
 { #category : #'pool variables' }

@@ -4,7 +4,7 @@ I represent an accessor for a sequence of objects. My instances can both read an
 Class {
 	#name : #ReadWriteStream,
 	#superclass : #WriteStream,
-	#category : #'Collections-Streams'
+	#category : #'Collections-Streams-Base'
 }
 
 { #category : #comparing }
@@ -13,6 +13,13 @@ ReadWriteStream >> = other [
 	(self class == ReadWriteStream and: [other class == ReadWriteStream]) ifFalse: [
 		^ super = other].	"does an identity test.  Don't read contents of FileStream"
 	^ self position = other position and: [self contents = other contents]
+]
+
+{ #category : #accessing }
+ReadWriteStream >> contents [
+
+	readLimit := readLimit max: position.
+	^ collection copyFrom: 1 to: readLimit
 ]
 
 { #category : #comparing }
@@ -53,13 +60,6 @@ ReadWriteStream >> next: anInteger [
 	position := endPosition.
 	^ans
 
-]
-
-{ #category : #initialization }
-ReadWriteStream >> on: aCollection [
-
-	super on: aCollection.
-	readLimit := aCollection size
 ]
 
 { #category : #accessing }

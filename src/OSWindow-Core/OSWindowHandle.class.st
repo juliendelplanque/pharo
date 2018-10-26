@@ -11,7 +11,7 @@ Class {
 		'osWindow',
 		'renderer'
 	],
-	#category : #'OSWindow-Core'
+	#category : #'OSWindow-Core-Utilities'
 }
 
 { #category : #accessing }
@@ -71,7 +71,12 @@ OSWindowHandle >> hide [
 OSWindowHandle >> icon: aForm [
 ]
 
-{ #category : #accessing }
+{ #category : #'text input' }
+OSWindowHandle >> isTextInputActive [
+	^ self subclassResponsibility
+]
+
+{ #category : #testing }
 OSWindowHandle >> isValid [
 	self subclassResponsibility 
 ]
@@ -123,6 +128,12 @@ OSWindowHandle >> position: newPosition [
 	self subclassResponsibility 
 ]
 
+{ #category : #accessing }
+OSWindowHandle >> prepareExternalResourceForAutoRelease [
+	"This hook will allow just create handlers to prepate their external resources for being 
+	 releases by the GC (if needed). By default, do nothing."
+]
+
 { #category : #'mouse capture' }
 OSWindowHandle >> releaseMouse [
 ]
@@ -160,6 +171,16 @@ OSWindowHandle >> setMouseCursor: cursor mask: mask [
 { #category : #accessing }
 OSWindowHandle >> show [
 	self subclassResponsibility 
+]
+
+{ #category : #'text input' }
+OSWindowHandle >> startTextInput [
+	self subclassResponsibility
+]
+
+{ #category : #'text input' }
+OSWindowHandle >> stopTextInput [
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

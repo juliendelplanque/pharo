@@ -23,12 +23,12 @@ Class {
 		'nonEmpty5ElementsWithoutDuplicate',
 		'sameAtEndAndBegining',
 		'nonEmpty1Element',
-		'floatCollection',
 		'indexArray',
 		'subCollection',
 		'duplicateElement',
 		'collectionWithDuplicateElement',
-		'collectionWith4Elements'
+		'collectionWith4Elements',
+		'stringCollection'
 	],
 	#category : #'Collections-Tests-Sequenceable'
 }
@@ -108,7 +108,7 @@ HeapTest >> collectionWith5Elements [
 { #category : #requirements }
 HeapTest >> collectionWithCopyNonIdentical [
 	" return a collection that include elements for which 'copy' return a different object (this is not the case of SmallInteger)"
-	^ floatCollection 
+	^ stringCollection 
 ]
 
 { #category : #requirements }
@@ -227,7 +227,7 @@ HeapTest >> elementTwiceInForOccurrences [
 HeapTest >> elementsCopyNonIdenticalWithoutEqualElements [
 	" return a collection that does niot incllude equal elements ( classic equality )
 	all elements included are elements for which copy is not identical to the element  "
-	^ floatCollection 
+	^ stringCollection 
 ]
 
 { #category : #requirements }
@@ -259,62 +259,6 @@ HeapTest >> firstCollection [
 HeapTest >> firstIndex [
 	" return an index between 'nonEmpty' bounds that is < to 'second index' "
 	^2
-]
-
-{ #category : #examples }
-HeapTest >> heapExample [	"HeapTest new heapExample"
-	"Create a sorted collection of numbers, remove the elements
-	sequentially and add new objects randomly.
-	Note: This is the kind of benchmark a heap is designed for."
-	| n rnd array time sorted |
-	n := 5000. "# of elements to sort"
-	rnd := Random new.
-	array := (1 to: n) collect:[:i| rnd next].
-	"First, the heap version"
-	time := Time millisecondsToRun:[
-		sorted := Heap withAll: array.
-		1 to: n do:[:i| 
-			sorted removeFirst.
-			sorted add: rnd next].
-	].
-	Transcript cr; show:'Time for Heap: ', time printString,' msecs'.
-	"The quicksort version"
-	time := Time millisecondsToRun:[
-		sorted := SortedCollection withAll: array.
-		1 to: n do:[:i| 
-			sorted removeFirst.
-			sorted add: rnd next].
-	].
-	Transcript cr; show:'Time for SortedCollection: ', time printString,' msecs'.
-
-]
-
-{ #category : #examples }
-HeapTest >> heapSortExample [	"HeapTest new heapSortExample"
-	"Sort a random collection of Floats and compare the results with
-	SortedCollection (using the quick-sort algorithm) and 
-	ArrayedCollection>>mergeSortFrom:to:by: (using the merge-sort algorithm)."
-	| n rnd array  time sorted |
-	n := 10000. "# of elements to sort"
-	rnd := Random new.
-	array := (1 to: n) collect:[:i| rnd next].
-	"First, the heap version"
-	time := Time millisecondsToRun:[
-		sorted := Heap withAll: array.
-		1 to: n do:[:i| sorted removeFirst].
-	].
-	Transcript cr; show:'Time for heap-sort: ', time printString,' msecs'.
-	"The quicksort version"
-	time := Time millisecondsToRun:[
-		sorted := SortedCollection withAll: array.
-	].
-	Transcript cr; show:'Time for quick-sort: ', time printString,' msecs'.
-	"The merge-sort version"
-	time := Time millisecondsToRun:[
-		array mergeSortFrom: 1 to: array size by: [:v1 :v2| v1 <= v2].
-	].
-	Transcript cr; show:'Time for merge-sort: ', time printString,' msecs'.
-
 ]
 
 { #category : #requirements }
@@ -466,7 +410,7 @@ HeapTest >> setUp [
 	speciesClass := Heap.
 	sameAtEndAndBegining := Heap new add: 1.5 ;  add: 1.5 copy ; yourself.
 	nonEmpty1Element := Heap new add: 5 ; yourself.
-	floatCollection := Heap new add: 2.5 ; add: 5.5 ; add:4.2 ; yourself.
+	stringCollection := Heap new add: 'a' ; add: 'b' ; add: 'c' ; yourself.
 	indexArray := #( 1 3).
 	subCollection := Heap new.
 	duplicateElement := 1.
@@ -561,8 +505,8 @@ HeapTest >> testDo [
 
 { #category : #tests }
 HeapTest >> testExamples [
-	self heapExample.
-	self heapSortExample
+	Heap heapExample.
+	Heap heapSortExample
 ]
 
 { #category : #'basic tests' }

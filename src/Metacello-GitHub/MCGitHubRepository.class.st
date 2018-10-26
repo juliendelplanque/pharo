@@ -37,6 +37,11 @@ MCGitHubRepository class >> cacheDirectoryPath [
   ^ super cacheDirectoryPath
 ]
 
+{ #category : #'instance creation' }
+MCGitHubRepository class >> createRepositoryFromSpec: aRepositorySpec on: aPlatform [
+	^ aPlatform createGithubRepository: aRepositorySpec
+]
+
 { #category : #accessing }
 MCGitHubRepository class >> downloadCache [
   "use class var to survive upgrade when MCGitHubRepository moved to subclass of MCGitBasedRepository"
@@ -72,14 +77,14 @@ MCGitHubRepository class >> flushETagsCache [
 ]
 
 { #category : #testing }
+MCGitHubRepository class >> isAvailableFor: type [
+	^ type = 'github'
+]
+
+{ #category : #testing }
 MCGitHubRepository class >> isEnabled [
 
 	^true
-]
-
-{ #category : #private }
-MCGitHubRepository class >> projectTagsUrlFor: projectPath [
-  ^ 'https://api.github.com/repos/' , projectPath , '/tags'
 ]
 
 { #category : #private }
@@ -134,4 +139,9 @@ MCGitHubRepository >> normalizeTagsData: jsonObject [
       commit := tagObject at: 'commit'.
       tagDict at: tag put: (commit at: 'sha') ].
   ^ tagDict
+]
+
+{ #category : #private }
+MCGitHubRepository >> projectTagsUrlFor: projectPath [
+  ^ 'https://api.github.com/repos/' , projectPath , '/tags'
 ]

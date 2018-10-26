@@ -25,7 +25,7 @@ Class {
 	#classVars : [
 		'FloodFillTolerance'
 	],
-	#category : #'Graphics-Display Objects'
+	#category : #'Graphics-Display Objects-Forms'
 }
 
 { #category : #'mode constants' }
@@ -2291,6 +2291,13 @@ Form >> rotateBy: deg smoothing: cellSize [
 		rotateBy: (a := a+5) smoothing: 2) display].
 f display
 "
+]
+
+{ #category : #'scaling, rotation' }
+Form >> scaledByDisplayScaleFactor [
+	
+	^ self scaledToSize: self extent * World displayScaleFactor.
+
 ]
 
 { #category : #'scaling, rotation' }

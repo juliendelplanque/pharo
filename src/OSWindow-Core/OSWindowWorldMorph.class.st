@@ -18,6 +18,15 @@ Class {
 	#category : #'OSWindow-Core-Morphic'
 }
 
+{ #category : #accessing }
+OSWindowWorldMorph >> actualScreenSize [
+
+	^ [ self osWindow extent ]
+		on: Error do: [ :e | 
+			"if window was destroyed, we will have an error."
+			0@0 ]
+]
+
 { #category : #adding }
 OSWindowWorldMorph >> addMorph: aMorph frame: rectangle [
 	"For compatibility with SystemWindow."
@@ -49,6 +58,12 @@ OSWindowWorldMorph >> delete [
 OSWindowWorldMorph >> display [
 	self updateDisplay.
 	^ display
+]
+
+{ #category : #'session management' }
+OSWindowWorldMorph >> displayArea [
+
+	^ Rectangle origin: 0@0 corner: osWindow extent
 ]
 
 { #category : #initialization }
@@ -111,9 +126,24 @@ OSWindowWorldMorph >> recreateOSWindow [
 	self updateDisplay.
 	driver := self pickMostSuitableWindowDriver.
 	attributes preferableDriver: driver.
-	osWindow := OSWindow createWithAttributes: attributes.
-	osWindow newFormRenderer: display.
-	osWindow eventHandler: (OSWindowMorphicEventHandler for: self)
+	osWindow := OSWindow createWithAttributes: attributes eventHandler: (OSWindowMorphicEventHandler for: self)
+]
+
+{ #category : #'world state' }
+OSWindowWorldMorph >> restoreMorphicDisplay [
+
+	self
+		extent: self display extent;
+		viewBox: self display boundingBox;
+		handsDo: [:h | h visible: true; showTemporaryCursor: nil];
+		resizeBackgroundMorph;
+		submorphsDo: [ :each | each displayExtentChanged ];
+		fullRepaintNeeded.
+		
+	self defer: [Cursor normal show].
+		
+	self layoutChanged.
+
 ]
 
 { #category : #accessing }

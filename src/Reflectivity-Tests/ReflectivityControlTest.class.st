@@ -12,6 +12,11 @@ Class {
 }
 
 { #category : #tagging }
+ReflectivityControlTest >> recordLevel [
+	tag := Processor activeProcess level
+]
+
+{ #category : #tagging }
 ReflectivityControlTest >> return3 [
 	^3
 ]
@@ -184,11 +189,29 @@ ReflectivityControlTest >> testAfterMethod [
 		control: #after.
 	methodNode link: link.
 	self assert: methodNode hasMetalink.
-	self assert: (ReflectivityExamples >> #exampleMethod) class = ReflectiveMethod.
+	self assert: (ReflectivityExamples >> #exampleMethod) class equals: ReflectiveMethod.
 	self assert: tag isNil.
-	self assert: ReflectivityExamples new exampleMethod = 5.
-	self assert: tag = #yes.
-	self assert: (ReflectivityExamples >> #exampleMethod) class = CompiledMethod.
+	self assert: ReflectivityExamples new exampleMethod equals: 5.
+	self assert: tag equals: #yes.
+	self assert: (ReflectivityExamples >> #exampleMethod) class equals: CompiledMethod
+]
+
+{ #category : #'tests - level' }
+ReflectivityControlTest >> testAfterMethodLevel [
+	| methodNode |
+	"check that level is correct in #after on methodNode"
+	methodNode := (ReflectivityExamples >> #exampleMethod) ast.
+	link := MetaLink new
+		metaObject: self;
+		selector: #recordLevel;
+		control: #after;
+		level: 0.
+	methodNode link: link.
+	self assert: methodNode hasMetalink.
+	self assert: (ReflectivityExamples >> #exampleMethod) class equals: ReflectiveMethod.
+	self assert: ReflectivityExamples new exampleMethod equals: 5.
+	self assert: tag equals: 1.
+	self assert: (ReflectivityExamples >> #exampleMethod) class equals: CompiledMethod
 ]
 
 { #category : #'tests - after' }
@@ -554,19 +577,51 @@ ReflectivityControlTest >> testBeforeSequence [
 { #category : #'tests - before' }
 ReflectivityControlTest >> testBeforeVariable [
 	| variableNode |
-	variableNode := (ReflectivityExamples >> #exampleGlobalRead) ast statements first value.
+	variableNode := (ReflectivityExamples >> #exampleGlobalRead) ast
+		statements first value.
 	self assert: variableNode isVariable.
 	link := MetaLink new
 		metaObject: self;
 		selector: #tagExec.
 	variableNode link: link.
 	self assert: variableNode hasMetalinkBefore.
-	self assert: (ReflectivityExamples >> #exampleGlobalRead) class = ReflectiveMethod.
+	self
+		assert: (ReflectivityExamples >> #exampleGlobalRead) class
+		equals: ReflectiveMethod.
 	self assert: tag isNil.
-	self assert: ReflectivityExamples new exampleGlobalRead = GlobalForTesting.
-	self assert: tag = 'yes'.
-	self assert: (ReflectivityExamples >> #exampleGlobalRead) class = CompiledMethod.
-	self deny: (ReflectivityExamples >> #exampleGlobalRead) isQuick.
+	self
+		assert: ReflectivityExamples new exampleGlobalRead
+		equals: GlobalForTesting.
+	self assert: tag equals: 'yes'.
+	self
+		assert: (ReflectivityExamples >> #exampleGlobalRead) class
+		equals: CompiledMethod.
+	self deny: (ReflectivityExamples >> #exampleGlobalRead) isQuick
+]
+
+{ #category : #'tests - before' }
+ReflectivityControlTest >> testBeforeVariableSelf [
+	| variableNode |
+	variableNode := (ReflectivityExamples >> #exampleSelf) ast statements
+		first.
+	self assert: variableNode isVariable.
+	link := MetaLink new
+		metaObject: self;
+		selector: #tagExec.
+	variableNode link: link.
+	self assert: variableNode hasMetalinkBefore.
+	self
+		assert: (ReflectivityExamples >> #exampleSelf) class
+		equals: ReflectiveMethod.
+	self assert: tag isNil.
+	self
+		assert: ReflectivityExamples new exampleSelf class
+		equals: ReflectivityExamples.
+	self assert: tag equals: 'yes'.
+	self
+		assert: (ReflectivityExamples >> #exampleSelf) class
+		equals: CompiledMethod.
+	self deny: (ReflectivityExamples >> #exampleSelf) isQuick
 ]
 
 { #category : #'tests - conditions' }
@@ -619,6 +674,24 @@ ReflectivityControlTest >> testConditionDisableEnableWithArguments [
 	ReflectivityExamples new exampleMethod.
 	self assert: tag class equals: RBMessageNode.
 
+]
+
+{ #category : #'tests - level' }
+ReflectivityControlTest >> testConditionMetaLevel [
+	"check that the condition is evaluated on the same meta level as the link"
+	| sendNode |
+	sendNode := (ReflectivityExamples >> #exampleMethod) sendNodes first.
+	link := MetaLink new
+		metaObject: self;
+		selector: #tagExec:;
+		condition: [ self assert: Processor activeProcess level == 1. true ];
+		level: 0;
+		arguments: #(#node).
+	sendNode link: link.
+	self assert: sendNode hasMetalinkBefore.
+	self assert: tag isNil.
+	ReflectivityExamples new exampleMethod.
+	self assert: tag class equals: RBMessageNode.
 ]
 
 { #category : #'tests - conditions' }

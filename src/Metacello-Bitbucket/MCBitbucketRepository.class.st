@@ -16,15 +16,20 @@ MCBitbucketRepository class >> cacheDirectoryPath [
   ^ super cacheDirectoryPath
 ]
 
+{ #category : #'instance creation' }
+MCBitbucketRepository class >> createRepositoryFromSpec: aRepositorySpec on: aPlatform [
+	^ aPlatform createBitbucketRepository: aRepositorySpec
+]
+
+{ #category : #testing }
+MCBitbucketRepository class >> isAvailableFor: type [
+	^ type = 'bitbucket'
+]
+
 { #category : #testing }
 MCBitbucketRepository class >> isEnabled [
 
 	^true
-]
-
-{ #category : #private }
-MCBitbucketRepository class >> projectTagsUrlFor: projectPath [
-  ^ 'https://bitbucket.org/api/1.0/repositories/' , projectPath , '/tags'
 ]
 
 { #category : #private }
@@ -55,4 +60,9 @@ MCBitbucketRepository >> normalizeTagsData: jsonObject [
       sha := tagObject at: 'node'.
       tagDict at: tag put: sha ].
   ^ tagDict
+]
+
+{ #category : #private }
+MCBitbucketRepository >> projectTagsUrlFor: projectPath [
+  ^ 'https://bitbucket.org/api/1.0/repositories/' , projectPath , '/tags'
 ]

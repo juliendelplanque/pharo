@@ -87,6 +87,11 @@ OrderedCollection class >> arrayType [
 	^ Array
 ]
 
+{ #category : #initialization }
+OrderedCollection class >> compactAllInstances [
+	self allInstances do: #compact
+]
+
 { #category : #'instance creation' }
 OrderedCollection class >> new [
 	^ self new: 10
@@ -342,6 +347,20 @@ OrderedCollection >> collect: collectBlock thenSelect: selectBlock [
 { #category : #private }
 OrderedCollection >> collector [  "Private"
 	^ array
+]
+
+{ #category : #private }
+OrderedCollection >> compact [
+	"remove all empty slots to the end of array, while keeping the empty slots at the front."
+
+    | newArray |
+    newArray := self class arrayType new: lastIndex.
+    newArray 
+        replaceFrom: firstIndex
+        to: lastIndex
+        with: array
+        startingAt: firstIndex.
+    array := newArray
 ]
 
 { #category : #copying }
@@ -843,5 +862,19 @@ OrderedCollection >> withIndexCollect: elementAndIndexBlock [
 		newCollection addLast: (elementAndIndexBlock
 			value: (array at: index)
 			value: index - firstIndex + 1)].
+	^ newCollection
+]
+
+{ #category : #enumerating }
+OrderedCollection >> withIndexSelect: elementAndIndexBlock select: selectBlock [
+	"Optimized version of SequenceableCollection>>#withIndexSelect: "
+
+	"(#('We' 'love' 'pharo!') asOrderedCollection withIndexSelect: [:value :index | value size - 1 <= index]) >>> (OrderedCollection with: 'We')"
+
+	| newCollection element |
+	newCollection := self copyEmpty.
+	firstIndex to: lastIndex do: [ :index | 
+		(selectBlock value: (element := array at: index) value: index)
+			ifTrue: [ newCollection addLast: element ] ].
 	^ newCollection
 ]

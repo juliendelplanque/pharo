@@ -134,8 +134,8 @@ GTSpotter class >> menuCommandOn: aBuilder [
 	(aBuilder item: #Spotter)
 		action: [ GTSpotterGlobalShortcut openGlobalSpotter ];
 		keyText: 'Shift + Enter';
-		order: 0.7;
-		parent: #MostUsedTools;
+		order: 50;
+		parent: #Tools;
 		help: 'Search tool to explore Pharo system effectively.';
 		iconName: #smallFindIcon
 ]
@@ -265,6 +265,15 @@ GTSpotter >> defaultPagerModel [
 { #category : #'accessing-defaults' }
 GTSpotter >> defaultStep [
 	^ GTSpotterStep new
+]
+
+{ #category : #'actions api' }
+GTSpotter >> doIt [
+	| result |
+	Smalltalk compiler
+		silentlyDo: [ result := Smalltalk compiler evaluate: text string trimBoth ]
+		exceptionDo: [:ex | ^ex ]. 
+	"self exitDueTo: #doIt"
 ]
 
 { #category : #accessing }
@@ -404,6 +413,16 @@ GTSpotter >> initialize [
 	super initialize.
 	
 	processorsFilter := GTSpotterSettingsProcessorFilter new
+]
+
+{ #category : #'actions api' }
+GTSpotter >> inspectIt [
+	| result |
+	Smalltalk compiler
+		silentlyDo: [ result := Smalltalk compiler evaluate: text string trimBoth ]
+		exceptionDo: [ :ex | ^ex  ].
+	result inspect.
+	self exitDueTo: #inspectIt 
 ]
 
 { #category : #testing }

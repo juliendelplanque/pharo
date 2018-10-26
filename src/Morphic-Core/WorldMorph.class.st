@@ -9,12 +9,16 @@ Class {
 	#superclass : #PasteUpMorph,
 	#instVars : [
 		'osWindow',
+		'osWindowMutex',
 		'session'
 	],
 	#classVars : [
 		'AllowDropFiles',
 		'CursorOwnerWorld',
 		'ExtraWorldList'
+	],
+	#classInstVars : [
+		'displayScaleFactor'
 	],
 	#category : #'Morphic-Core-Worlds'
 }
@@ -62,6 +66,32 @@ WorldMorph class >> defaultWorldColor [
 
 ]
 
+{ #category : #setting }
+WorldMorph class >> displayScaleFactor [
+
+	^ displayScaleFactor ifNil: [ displayScaleFactor := 1 ]
+]
+
+{ #category : #setting }
+WorldMorph class >> displayScaleFactor: aNumber [
+
+	displayScaleFactor := aNumber
+]
+
+{ #category : #setting }
+WorldMorph class >> displayScaleFactorSettingsOn: aBuilder [ 
+	<systemsettings>
+	
+	(aBuilder range: #displayScaleFactor)
+		parent: #appearance;
+		order: 3;
+		label: 'Display scale factor';
+		description: 'Specify scale factor for UI elements. This setting does not affect defined font sizes.';
+		target: self;
+		range: (0.3 to: 8 by: 0.1).	
+	
+]
+
 { #category : #'initialize-release' }
 WorldMorph class >> doOneCycle [
 	self extraWorldList do: [:world |
@@ -107,6 +137,24 @@ WorldMorph class >> startUp [
 	self extraWorldList do: #restoreMorphicDisplay.
 ]
 
+{ #category : #cursor }
+WorldMorph >> activateCursor: aCursor [
+	osWindow ifNil: [
+		aCursor beCursor
+	] ifNotNil: [
+		osWindow setMouseCursor: aCursor
+	]
+]
+
+{ #category : #cursor }
+WorldMorph >> activateCursor: aCursor withMask: maskForm [
+	osWindow ifNil: [
+		aCursor beCursorWithMask: maskForm
+	] ifNotNil: [
+		osWindow setMouseCursor: aCursor mask: maskForm
+	]
+]
+
 { #category : #structure }
 WorldMorph >> activeHand [
 
@@ -119,6 +167,16 @@ WorldMorph >> activeHand: aHandMorph [
 	worldState activeHand: aHandMorph.
 
 
+]
+
+{ #category : #accessing }
+WorldMorph >> actualScreenSize [
+	"Obtains the screen size from VM. Since this may change depending on which world is installed 
+	(worlds can change, yes), this needs to be delegated here allowing subclasses to redefine the way 
+	they take screen size."
+	<primitive: 106>
+
+	self primitiveFailed
 ]
 
 { #category : #'alarms-scheduler' }
@@ -253,6 +311,18 @@ WorldMorph >> deleteBalloonTarget: aMorph [
 { #category : #'world menu' }
 WorldMorph >> discoveredWorldMenu [
 	^ worldState discoveredWorldMenu
+]
+
+{ #category : #accessing }
+WorldMorph >> displayArea [
+
+	^ Display usableArea.
+]
+
+{ #category : #geometry }
+WorldMorph >> displayScaleFactor [
+
+	^ self class displayScaleFactor
 ]
 
 { #category : #'world state' }

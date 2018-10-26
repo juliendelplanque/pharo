@@ -67,6 +67,7 @@ TestAsserter class >> suiteClass [
 ]
 
 { #category : #asserting }
+<<<<<<< HEAD
 TestAsserter >> assert: aBoolean [
 	assertionMade := true.
 	aBoolean ifFalse:
@@ -75,6 +76,8 @@ TestAsserter >> assert: aBoolean [
 ]
 
 { #category : #asserting }
+=======
+>>>>>>> 343dbe934524aa7893ab8498a9ae15d9c733aa68
 TestAsserter >> assert: actualNumber closeTo: expectedNumber [
 	^ self
 		assert: (actualNumber closeTo: expectedNumber)

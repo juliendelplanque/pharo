@@ -7,8 +7,13 @@ Class {
 	#instVars : [
 		'createdClasses'
 	],
-	#category : #'TraitsV2-Tests'
+	#category : #'TraitsV2-Tests-Tests'
 }
+
+{ #category : #'instance creation' }
+T2AbstractTest >> newClass: aName [ 
+	^self newClass: aName with: #() uses: #()
+]
 
 { #category : #'instance creation' }
 T2AbstractTest >> newClass: aName superclass: aSuperclass with: slots uses: aComposition [

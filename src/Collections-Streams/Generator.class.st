@@ -76,20 +76,22 @@ Class {
 		'continue',
 		'home'
 	],
-	#category : #'Collections-Streams'
+	#category : #'Collections-Streams-Base'
 }
-
-{ #category : #examples }
-Generator class >> examplePrimes [
-	| generator |
-	Transcript open.
-	generator := Generator on: [:g| Integer primesUpTo: 100 do:[:prime| g yield: prime]].
-	[generator atEnd] whileFalse:[Transcript show: generator next; cr].
-]
 
 { #category : #'instance creation' }
 Generator class >> on: aBlock [
 	^ self basicNew initializeOn: aBlock
+]
+
+{ #category : #examples }
+Generator class >> somePrimes [
+	"self somePrimes" 
+	
+	^ String streamContents: [ :str | 
+		| generator |
+		generator := Generator on: [:g| Integer primesUpTo: 100 do:[:prime| g yield: prime]].
+		[generator atEnd] whileFalse:[ str nextPutAll: generator next printString; cr]]
 ]
 
 { #category : #testing }

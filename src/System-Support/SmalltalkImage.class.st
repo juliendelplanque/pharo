@@ -47,7 +47,7 @@ Class {
 		'SpecialSelectors',
 		'Tools'
 	],
-	#category : #'System-Support'
+	#category : #'System-Support-Image'
 }
 
 { #category : #cleanup }
@@ -172,15 +172,6 @@ SmalltalkImage >> arguments [
 				whileFalse: [ 
 					str nextPut: arg.
 					i := i + 1 ] ]
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> associationAt: key ifAbsent: aBlock [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals associationAt: key ifAbsent: aBlock
 ]
 
 { #category : #'to clean later' }
@@ -476,16 +467,6 @@ SmalltalkImage >> datedVersion [
 SmalltalkImage >> defaultLogFileName [
  
 	^ 'PharoDebug.log'
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> do: aBlock [
-	"Obsoleted."
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals do: aBlock
-	
-
 ]
 
 { #category : #accessing }
@@ -811,28 +792,19 @@ SmalltalkImage >> imagePath [
 
 	"SmalltalkImage current imagePath"
 
-	^ self primImagePath
+	^ self primImagePath asByteArray utf8Decoded 
 ]
 
 { #category : #'image, changes name' }
 SmalltalkImage >> imagePath: newPath [
 	"Set the the full path name for the current image.  All further snapshots will use this."
 
-	self primImagePath: newPath
+	self primImagePath: newPath utf8Encoded asString
 ]
 
 { #category : #'image, changes name' }
 SmalltalkImage >> imageSuffix [
 	^ 'image'
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> includes: element [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals includes: element
 ]
 
 { #category : #'to clean later' }
@@ -913,41 +885,6 @@ SmalltalkImage >> isYoung: oop [
 	"Primitive. Answer whether the object currently resides in youngSpace."
 	<primitive: 'primitiveIsYoung'>
 	^self primitiveFailed
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> keyAtIdentityValue: anObject ifAbsent: aBlock [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals keyAtIdentityValue: anObject ifAbsent: aBlock
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> keyAtValue: anObject [
-	"Obsoleted."
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals keyAtValue: anObject
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> keys [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals keys
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> keysAndValuesDo: aBlock [
-	"Obsoleted."
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals keysAndValuesDo: aBlock
-
 ]
 
 { #category : #accessing }
@@ -1586,24 +1523,6 @@ SmalltalkImage >> removeEmptyMessageCategories [
 	SystemOrganization removeEmptyCategories.
 ]
 
-{ #category : #'to clean later' }
-SmalltalkImage >> removeKey: key [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals removeKey: key
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> removeKey: key ifAbsent: aBlock [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals removeKey: key ifAbsent: aBlock
-]
-
 { #category : #shrinking }
 SmalltalkImage >> removeSelector: descriptor [ 
 	"Safely remove a selector from a class (or metaclass). If the
@@ -1756,15 +1675,6 @@ SmalltalkImage >> saveSession [
 	^ self snapshot: true andQuit: false
 ]
 
-{ #category : #'to clean later' }
-SmalltalkImage >> select: aBlock [
-	"Obsoleted."
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals select: aBlock
-
-]
-
 { #category : #accessing }
 SmalltalkImage >> session [
 	^ SessionManager default currentSession
@@ -1788,15 +1698,6 @@ SmalltalkImage >> signalLowSpace [
 	"Signal the low-space semaphore to alert the user that space is running low."
 
 	LowSpaceSemaphore signal.
-]
-
-{ #category : #'to clean later' }
-SmalltalkImage >> size [
-	"Obsoleted."
-
-	self flag: #tobeprecated.
-	"self deprecated: 'Use Smalltalk globals'."
-	^globals size
 ]
 
 { #category : #'snapshot and quit' }
@@ -1952,7 +1853,7 @@ SmalltalkImage >> supportsQueueingFinalization: aBoolean [
 
 { #category : #'sources, change log' }
 SmalltalkImage >> systemInformationString [
-	^ String cr, 'Pharo ', SystemVersion current dottedMajorMinor,  String cr, self lastUpdateString, String cr, String cr, String cr, self licenseString
+	^ String cr, 'Pharo ', SystemVersion current dottedMajorMinorPatch,  String cr, self lastUpdateString, String cr, String cr, String cr, self licenseString
 ]
 
 { #category : #'sources, change log' }

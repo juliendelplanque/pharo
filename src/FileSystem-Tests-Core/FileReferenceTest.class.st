@@ -20,82 +20,81 @@ FileReferenceTest >> createFile: aPath [
 { #category : #running }
 FileReferenceTest >> setUp [
 	super setUp.
-	filesystem := FileSystem memory.
+	filesystem := FileSystem memory
 ]
 
 { #category : #tests }
 FileReferenceTest >> testAllChildren [
 	"allChildren returns all the files and folders recursively nested in a reference"
+
 	<publicTest>
-	
 	| ref children |
-	filesystem createDirectory: '/alpha'.
+	[ filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/beta/delta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
 	children := ref allChildren.
 	"all children returns the nodes: '/alpha', '/alpha/beta',  '/alpha/beta/delta', and '/alpha/gamma'."
-	self assert: children size = 4.
-	children do:
-		[:child |
-		self assert: child class = FileReference.
-		self assert: (ref = child or: [ref contains: child])].
-	self assert: (children collect: [:ea | ea basename]) = #('alpha' 'beta' 'gamma' 'delta')
+	self assert: children size equals: 4.
+	children
+		do: [ :child | 
+			self assert: child class equals: FileReference.
+			self assert: (ref = child or: [ ref contains: child ]) ].
+	self assert: (children collect: [ :ea | ea basename ]) equals: #('alpha' 'beta' 'gamma' 'delta') ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testAllDirectories [
 	"allDirectories returns all folders recursively nested in a reference"
+
 	<publicTest>
-	
 	| ref children |
-	filesystem createDirectory: '/alpha'.
+	[ filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/beta/delta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
 	children := ref allDirectories.
 	"all children returns the directories: '/alpha', '/alpha/beta', and '/alpha/gamma'."
-	self assert: children size = 4.
-	
-	children do:
-		[:child |
-		self assert: child class = FileReference.
-		self assert: (ref = child or: [ref contains: child])].
-	self assert: (children collect: [:ea | ea basename]) = #('alpha' 'beta' 'gamma' 'delta')
+	self assert: children size equals: 4.
+	children
+		do: [ :child | 
+			self assert: child class equals: FileReference.
+			self assert: (ref = child or: [ ref contains: child ]) ].
+	self assert: (children collect: [ :ea | ea basename ]) equals: #('alpha' 'beta' 'gamma' 'delta') ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testAllEntries [
 	| ref entries |
-	filesystem createDirectory: '/alpha'.
+	[ filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/beta/delta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
 	entries := ref allEntries.
-	self assert: entries size = 4.
-	entries do:
-		[:entry |
-		self assert: entry class = FileSystemDirectoryEntry.
-		self assert: (ref = entry reference or: [ref contains: entry reference])].
-	self assert: (entries collect: [:ea | ea basename]) = #('alpha' 'beta' 'gamma' 'delta')
+	self assert: entries size equals: 4.
+	entries
+		do: [ :entry | 
+			self assert: entry class equals: FileSystemDirectoryEntry.
+			self assert: (ref = entry reference or: [ ref contains: entry reference ]) ].
+	self assert: (entries collect: [ :ea | ea basename ]) equals: #('alpha' 'beta' 'gamma' 'delta') ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testAsAbsoluteConverted [
 	"Converts a relative reference to absolute, and asserts
 	that it's absolute and still has the same path."
-	
+
 	| ref absolute |
 	ref := filesystem * 'plonk'.
 	absolute := ref asAbsolute.
 	self assert: absolute isAbsolute.
-	self assert: (absolute path at: 1) = 'plonk'
+	self assert: (absolute path at: 1) equals: 'plonk'
 ]
 
 { #category : #tests }
@@ -114,35 +113,30 @@ FileReferenceTest >> testAsReference [
 
 { #category : #tests }
 FileReferenceTest >> testBaseAndExtension [
-	
 	| noExtension simpleExtension complexExtension |
 	noExtension := filesystem * 'plonk'.
 	self assert: noExtension extension equals: ''.
 
 	"We create a reference to the plonk/griffle.taz in the context of filesystem"
 	simpleExtension := filesystem * 'plonk' / 'griffle.taz'.
-	self assert: simpleExtension base = 'griffle'.
-	self assert: simpleExtension extension = 'taz'.
-	
+	self assert: simpleExtension base equals: 'griffle'.
+	self assert: simpleExtension extension equals: 'taz'.
+
 	"Note that the extension of a complex extension starts after the last extension delimiter"
 	complexExtension := filesystem * 'plonk' / 'griffle.taz.txt'.
 	self assert: complexExtension base equals: 'griffle.taz'.
-	self assert: complexExtension extension equals: 'txt'.
+	self assert: complexExtension extension equals: 'txt'
 ]
 
 { #category : #tests }
 FileReferenceTest >> testBasename [
-	
 	| ref |
-	
 	ref := filesystem root.
-	self assert: ref basename = '/'.
-	
+	self assert: ref basename equals: '/'.
 	ref := filesystem * 'plonk' / 'griffle'.
-	self assert: ref basename = 'griffle'.
-	
+	self assert: ref basename equals: 'griffle'.
 	ref := filesystem * 'plonk' / 'griffle.taz'.
-	self assert: ref basename = 'griffle.taz'.
+	self assert: ref basename equals: 'griffle.taz'
 ]
 
 { #category : #tests }
@@ -202,33 +196,41 @@ FileReferenceTest >> testCanonicalization [
 { #category : #tests }
 FileReferenceTest >> testChildDirectories [
 	| childDirectories |
-	filesystem createDirectory: '/beta'.
-	filesystem createDirectory: '/gamma'.	
-	(filesystem / 'delta')
-		writeStreamDo: [ :stream | stream nextPutAll: '1' ].
-	(filesystem / 'epsilon')
-		writeStreamDo: [ :stream | stream nextPutAll: '2' ].
+	[ filesystem createDirectory: '/beta'.
+	filesystem createDirectory: '/gamma'.
+	filesystem / 'delta' writeStreamDo: [ :stream | stream nextPutAll: '1' ].
+	filesystem / 'epsilon' writeStreamDo: [ :stream | stream nextPutAll: '2' ].
 	childDirectories := filesystem root directories.
-	self assert: childDirectories size = 2.
-	childDirectories do: [ :each | 
-		self assert: each class = FileReference.
-		self assert: each isDirectory description: 'Collection should not contain references to files.' ]
+	self assert: childDirectories size equals: 2.
+	childDirectories
+		do: [ :each | 
+			self assert: each class equals: FileReference.
+			self
+				assert: each isDirectory
+				description: 'Collection should not contain references to files.' ] ]
+		ensure: [ (filesystem / 'beta') ensureDeleteAll.
+			(filesystem / 'gamma') ensureDeleteAll.
+			(filesystem / 'delta') ensureDelete.
+			(filesystem / 'epsilon') ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testChildFiles [
 	| childFiles |
-	filesystem createDirectory: '/beta'.
-	filesystem createDirectory: '/gamma'.	
-	(filesystem / 'delta')
-		writeStreamDo: [ :stream | stream nextPutAll: '1' ].
-	(filesystem / 'epsilon')
-		writeStreamDo: [ :stream | stream nextPutAll: '2' ].
+	[ filesystem createDirectory: '/beta'.
+	filesystem createDirectory: '/gamma'.
+	filesystem / 'delta' writeStreamDo: [ :stream | stream nextPutAll: '1' ].
+	filesystem / 'epsilon' writeStreamDo: [ :stream | stream nextPutAll: '2' ].
 	childFiles := filesystem root files.
-	self assert: childFiles size = 2.
-	childFiles do: [ :each | 
-		self assert: each class = FileReference.
-		self assert: each isFile description: 'Collection should not contain references to directories.' ]
+	self assert: childFiles size equals: 2.
+	childFiles
+		do: [ :each | 
+			self assert: each class equals: FileReference.
+			self assert: each isFile description: 'Collection should not contain references to directories.' ] ]
+		ensure: [ (filesystem / 'beta') ensureDeleteAll.
+			(filesystem / 'gamma') ensureDeleteAll.
+			(filesystem / 'delta') ensureDelete.
+			(filesystem / 'epsilon') ensureDelete ]
 ]
 
 { #category : #tests }
@@ -252,34 +254,34 @@ FileReferenceTest >> testChildOfReference [
 { #category : #tests }
 FileReferenceTest >> testChildren [
 	| ref children |
-	filesystem createDirectory: '/alpha'.
+	[ filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
 	children := ref children.
-	self assert: children size = 2.
-	children do:
-		[:child |
-		self assert: child class = FileReference.
-		self assert: (child isChildOf: ref).
-		self assert: (#('beta' 'gamma') includes: child basename)]
+	self assert: children size equals: 2.
+	children
+		do: [ :child | 
+			self assert: child class equals: FileReference.
+			self assert: (child isChildOf: ref).
+			self assert: (#('beta' 'gamma') includes: child basename) ] ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testCommaAddsExtension [
 	| ref result |
 	ref := filesystem * 'plonk'.
-	result := ref, 'griffle'.
-	self assert: result basename = 'plonk.griffle'
+	result := ref , 'griffle'.
+	self assert: result basename equals: 'plonk.griffle'
 ]
 
 { #category : #tests }
 FileReferenceTest >> testCommaAddsExtensionAgain [
 	| ref result |
 	ref := filesystem * 'plonk.griffle'.
-	result := ref, 'nurp'.
-	self assert: result basename = 'plonk.griffle.nurp'
+	result := ref , 'nurp'.
+	self assert: result basename equals: 'plonk.griffle.nurp'
 ]
 
 { #category : #tests }
@@ -306,54 +308,49 @@ FileReferenceTest >> testContainsReference [
 { #category : #tests }
 FileReferenceTest >> testContents [
 	| ref contents |
-	
 	contents := '12345 abcdf!'.
 	ref := filesystem * 'file'.
-	
-	ref writeStreamDo: [ :stream |
-		stream nextPutAll: contents ].
-	
-	self assert: ref contents asString equals: contents
+	[ ref writeStreamDo: [ :stream | stream nextPutAll: contents ].
+	self assert: ref contents asString equals: contents ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testDeleteAll [
 	"allChildren returns all the files and folders recursively nested in a reference"
+
 	<publicTest>
-	
-	| ref |
+	[ | ref |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/beta/delta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
 	ref deleteAll.
-	
 	self deny: ref exists.
 	self deny: (ref / 'beta') exists.
 	self deny: (ref / 'beta' / 'delta') exists.
-	self deny: (ref / 'beta' / 'gamma') exists.
+	self deny: (ref / 'beta' / 'gamma') exists ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testDeleteAllChildren [
 	"allChildren returns all the files and folders recursively nested in a reference"
+
 	<publicTest>
-	
-	| ref |
+	[ | ref |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/beta/delta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
 	ref deleteAllChildren.
-	
 	self assert: ref exists.
 	self deny: (ref / 'beta') exists.
 	self deny: (ref / 'beta' / 'delta') exists.
-	self deny: (ref / 'beta' / 'gamma') exists.
+	self deny: (ref / 'beta' / 'gamma') exists ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
@@ -361,15 +358,32 @@ FileReferenceTest >> testDeleteIfAbsent [
 	| flag reference |
 	flag := false.
 	reference := filesystem / 'plonk'.
-
 	reference ensureCreateFile.
-	reference exists ifFalse: [self error].
-	reference deleteIfAbsent: [flag := true].
+	[ reference exists
+		ifFalse: [ self error ].
+	reference deleteIfAbsent: [ flag := true ].
 	self deny: flag.
-	
-	reference exists ifTrue: [self error].
-	reference deleteIfAbsent: [flag := true].
-	self assert: flag.
+	reference exists
+		ifTrue: [ self error ].
+	reference deleteIfAbsent: [ flag := true ].
+	self assert: flag ]
+		ensure: [ reference ensureDelete ]
+]
+
+{ #category : #tests }
+FileReferenceTest >> testDoesContainReferenceFileSystem [
+	| ref other |
+	ref := filesystem * 'griffle'.
+	other := filesystem / 'griffle' / 'nurp'.
+	self assert: (ref contains: other)
+]
+
+{ #category : #tests }
+FileReferenceTest >> testDoesNotContainReferenceWhenUsingDifferentInstancesOfMemoryFileSystem [
+	| ref other |
+	ref := filesystem * 'griffle'.
+	other := FileSystem memory / 'griffle' / 'nurp'.
+	self deny: (ref contains: other)
 ]
 
 { #category : #tests }
@@ -387,14 +401,6 @@ FileReferenceTest >> testDoesntContainPath [
 ]
 
 { #category : #tests }
-FileReferenceTest >> testDoesntContainReferenceFileSystem [
-	| ref other |
-	ref := filesystem  * 'griffle'.
-	other := FileSystem memory / 'griffle' / 'nurp'.
-	self deny: (ref contains: other)
-]
-
-{ #category : #tests }
 FileReferenceTest >> testDoesntContainReferencePath [
 	| ref other |
 	ref := filesystem * 'griffle'.
@@ -407,10 +413,10 @@ FileReferenceTest >> testEnsureDelete [
 	| reference |
 	reference := filesystem / 'plonk'.	"Deletes the file if it exists"
 	reference ensureCreateFile.
-	self assert: reference exists.
+	[ self assert: reference exists.
 	reference ensureDelete.
-	self deny: reference exists.	"No-op if file does not exist"
-	reference ensureDelete
+	self deny: reference exists	"No-op if file does not exist" ]
+		ensure: [ reference ensureDelete ]
 ]
 
 { #category : #tests }
@@ -418,16 +424,14 @@ FileReferenceTest >> testEnsureDeleteAll [
 	| reference childReference |
 	reference := filesystem / 'plonk'.	"Deletes the file if it exists"
 	reference ensureCreateDirectory.
-	self assert: reference exists.
-	
+	[ self assert: reference exists.
 	childReference := reference / 'child'.
 	childReference ensureCreateFile.
 	self assert: childReference exists.
-		
 	reference ensureDeleteAll.
-	
 	self deny: childReference exists.
-	self deny: reference exists.
+	self deny: reference exists ]
+		ensure: [ reference ensureDeleteAll ]
 ]
 
 { #category : #tests }
@@ -435,43 +439,38 @@ FileReferenceTest >> testEnsureDeleteNonEmptyDirectory [
 	| reference childReference |
 	reference := filesystem / 'plonk'.	"Deletes the file if it exists"
 	reference ensureCreateDirectory.
-	self assert: reference exists.
-	
+	[ self assert: reference exists.
 	childReference := reference / 'child'.
 	childReference ensureCreateFile.
 	self assert: childReference exists.
-		
-	self should: [reference ensureDelete] raise: DirectoryIsNotEmpty.
-
-	reference ensureDeleteAll.
+	self should: [ reference ensureDelete ] raise: DirectoryIsNotEmpty ]
+		ensure: [ reference ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testEntries [
-
-	| ref entries |
+	[ | ref entries |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
-	ref := filesystem  / 'alpha'.
+	ref := filesystem / 'alpha'.
 	entries := ref entries.
-	self assert: entries size = 2.
-	entries do:
-		[:entry |
-		self assert: entry class = FileSystemDirectoryEntry.
-		self assert: (entry reference isChildOf: ref).
-		self assert: (#('beta' 'gamma') includes: entry reference basename)]
+	self assert: entries size equals: 2.
+	entries
+		do: [ :entry | 
+			self assert: entry class equals: FileSystemDirectoryEntry.
+			self assert: (entry reference isChildOf: ref).
+			self assert: (#('beta' 'gamma') includes: entry reference basename) ] ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testEqual [
-
 	| a b |
 	a := filesystem * 'plonk'.
 	b := filesystem * 'plonk'.
 	self deny: a == b.
-	self assert: a = b.
+	self assert: a equals: b
 ]
 
 { #category : #tests }
@@ -486,34 +485,30 @@ FileReferenceTest >> testEqualityRelativeVsAbsolute [
 
 { #category : #tests }
 FileReferenceTest >> testExists [
-
 	| reference |
 	reference := filesystem / 'plonk'.
-	
 	reference ensureCreateFile.
-	self assert: reference exists.
-
+	[ self assert: reference exists.
 	reference delete.
-	self deny: reference exists. 
+	self deny: reference exists ]
+		ensure: [ reference ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testGlob [
-	| ref children |
+	[ | ref children |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem root.
-	children := ref glob: [ :node| true].
-	self assert: children size == 4. "including root"
-	
-	children := ref glob: [ :node| node basename size > 1].
-	self assert: children size == 3. "without root"
-	
-	children := ref glob: [ :node| node basename = #gamma].
-	self assert: children size == 1. "gamma"
-	self assert: children first basename = #gamma.
+	children := ref glob: [ :node | true ].
+	self assert: children size == 4.	"including root"
+	children := ref glob: [ :node | node basename size > 1 ].
+	self assert: children size == 3.	"without root"
+	children := ref glob: [ :node | node basename = #gamma ].
+	self assert: children size == 1.	"gamma"
+	self assert: children first basename equals: #gamma ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
@@ -528,77 +523,70 @@ FileReferenceTest >> testGrandchildOfReference [
 { #category : #tests }
 FileReferenceTest >> testHasChildren [
 	<publicTest>
-	
-	| ref |
+	[ | ref |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	filesystem createDirectory: '/alpha/beta/delta'.
 	filesystem createDirectory: '/alpha/gamma'.
-	
 	ref := filesystem / 'alpha'.
-	
 	self assert: ref hasChildren.
 	self assert: (ref / 'beta') hasChildren.
 	self deny: (ref / 'beta' / 'delta') hasChildren.
-	self deny: (ref / 'beta' / 'gamma') hasChildren.
+	self deny: (ref / 'beta' / 'gamma') hasChildren ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testHasDirectories [
 	<publicTest>
-	
-	| ref |
+	[ | ref |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
-	
 	(filesystem / 'alpha' / 'beta' / 'delta') ensureCreateFile.
-	
 	filesystem createDirectory: '/alpha/gamma'.
 	ref := filesystem / 'alpha'.
-	
 	self assert: ref hasDirectories.
 	self deny: (ref / 'beta') hasDirectories.
-	self deny: (ref / 'beta' / 'gamma') hasDirectories.
+	self deny: (ref / 'beta' / 'gamma') hasDirectories ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testHasFiles [
 	<publicTest>
-	
-	| ref |
+	[ | ref |
 	filesystem createDirectory: '/alpha'.
 	filesystem createDirectory: '/alpha/beta'.
 	(filesystem / 'alpha' / 'beta' / 'delta') ensureCreateFile.
 	filesystem createDirectory: '/alpha/beta/eta'.
 	filesystem createDirectory: '/alpha/gamma'.
 	ref := filesystem / 'alpha'.
-	
 	self deny: ref hasFiles.
 	self assert: (ref / 'beta') hasFiles.
-	self deny: (ref / 'beta' / 'gamma') hasFiles.
+	self deny: (ref / 'beta' / 'gamma') hasFiles ]
+		ensure: [ (filesystem / 'alpha') ensureDeleteAll ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testIndicator [
-	
 	| ref |
 	ref := filesystem * 'plonk' / 'griffle'.
 	self deny: ref exists.
-	self assert: ref indicator = '?'.
-	
+	self assert: ref indicator equals: '?'.
 	ref := filesystem workingDirectory / 'plonk'.
 	self deny: ref exists.
-	[ref createDirectory.
-	 self assert: ref exists.
+	ref createDirectory.
+	[ self assert: ref exists.
 	self assert: ref isDirectory.
-	 self assert: ref indicator equals: '/' ] ensure: [ref delete].
-	
+	self assert: ref indicator equals: '/' ]
+		ensure: [ ref delete ].
 	ref := filesystem workingDirectory / 'plonk'.
 	self deny: ref exists.
-	[ref writeStreamDo: [:stream | stream nextPutAll: 'foo'  ] ifPresent: [self fail].
-	 self assert: ref exists.
+	[ ref writeStreamDo: [ :stream | stream nextPutAll: 'foo' ] ifPresent: [ self fail ].
+	self assert: ref exists.
 	self assert: ref isFile.
-	 self assert: ref indicator equals: '' ] ensure: [ref delete].
+	self assert: ref indicator equals: '' ]
+		ensure: [ ref delete ]
 ]
 
 { #category : #tests }
@@ -631,6 +619,60 @@ FileReferenceTest >> testIsRoot [
 	self assert: (filesystem root) isRoot
 ]
 
+{ #category : #'tests - handy utils' }
+FileReferenceTest >> testLastFilesForExtension [
+	"This test verifies that we have the following ordering: 3 4 5 33 49 51 101"
+	| childFiles |
+	[ filesystem createDirectory: 'dir'.
+	filesystem / 'dir' / 'games.51.ston' writeStreamDo: [ :stream | stream nextPutAll: '51' ].
+	filesystem / 'dir' / 'games.3.ston' writeStreamDo: [ :stream | stream nextPutAll: '3' ].
+	filesystem / 'dir' / 'games.33.ston' writeStreamDo: [ :stream | stream nextPutAll: '33' ].
+	filesystem / 'dir' / 'games.4.ston' writeStreamDo: [ :stream | stream nextPutAll: '4' ].
+	filesystem / 'dir' / 'games.101.ston' writeStreamDo: [ :stream | stream nextPutAll: '101' ].
+	filesystem / 'dir' / 'games.49.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'games.5.ston' writeStreamDo: [ :stream | stream nextPutAll: '5' ].
+	
+	childFiles := (filesystem root / 'dir') files.
+	self assert: childFiles size equals: 7.
+	self assert: ((filesystem root / 'dir') lastFileFor: 'games' extension: 'ston') basename equals: 'games.101.ston'.
+
+	
+			]
+			ensure: [ (filesystem / 'dir') ensureDeleteAll ]
+]
+
+{ #category : #'tests - handy utils' }
+FileReferenceTest >> testLastFilesForExtensionBrokenPattern [
+	"when a file does not follow the pattern name.number.extension, it should be filtered out."
+	[ filesystem createDirectory: 'dir'.
+	filesystem / 'dir' / 'games.51.ston' writeStreamDo: [ :stream | stream nextPutAll: '51' ].
+	filesystem / 'dir' / 'games.ston' writeStreamDo: [ :stream | stream nextPutAll: 'nonumber' ].
+	filesystem / 'dir' / 'games.stf' writeStreamDo: [ :stream | stream nextPutAll: 'wrong extension' ].
+	filesystem / 'dir' / 'games.101.ston' writeStreamDo: [ :stream | stream nextPutAll: '101' ].
+	filesystem / 'dir' / 'games.250.49.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'games.1000.1000.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'zorglub.500.ston' writeStreamDo: [ :stream | stream nextPutAll: '5' ].
+
+	self assert: ((filesystem root / 'dir') lastFileFor: 'games' extension: 'ston') basename equals: 'games.101.ston'.
+	] ensure: [ (filesystem / 'dir') ensureDeleteAll ]
+]
+
+{ #category : #'tests - handy utils' }
+FileReferenceTest >> testLastFilesForExtensionNegativeTesting [
+	"When there is no file with the given pattern, then an error should be raised."
+	
+	[ filesystem createDirectory: 'dir'.
+	filesystem / 'dir' / 'games.51.ston' writeStreamDo: [ :stream | stream nextPutAll: '51' ].
+	filesystem / 'dir' / 'games.4.ston' writeStreamDo: [ :stream | stream nextPutAll: '4' ].
+	filesystem / 'dir' / 'games.101.ston' writeStreamDo: [ :stream | stream nextPutAll: '101' ].
+	filesystem / 'dir' / 'games.49.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'games.5.ston' writeStreamDo: [ :stream | stream nextPutAll: '5' ].
+	
+	self should: [((filesystem root / 'dir') lastFileFor: 'games' extension: 'stf')] raise: Error.
+   self should: [((filesystem root / 'dir') lastFileFor: 'plouf' extension: 'ston')] raise: Error.
+	] ensure: [ (filesystem / 'dir') ensureDeleteAll ]
+]
+
 { #category : #tests }
 FileReferenceTest >> testMakeRelative [
 
@@ -639,6 +681,66 @@ FileReferenceTest >> testMakeRelative [
 	child := filesystem / 'griffle' / 'plonk' / 'nurb'.
 	relative := parent makeRelative: child.
 	self assert: relative equals: (Path * 'plonk' / 'nurb')
+]
+
+{ #category : #'tests - handy utils' }
+FileReferenceTest >> testNextNameForExtension [
+	
+	| childFiles |
+	[ filesystem createDirectory: 'dir'.
+	filesystem / 'dir' / 'games.51.ston' writeStreamDo: [ :stream | stream nextPutAll: '51' ].
+	filesystem / 'dir' / 'games.3.ston' writeStreamDo: [ :stream | stream nextPutAll: '3' ].
+	filesystem / 'dir' / 'games.33.ston' writeStreamDo: [ :stream | stream nextPutAll: '33' ].
+	filesystem / 'dir' / 'games.4.ston' writeStreamDo: [ :stream | stream nextPutAll: '4' ].
+	filesystem / 'dir' / 'games.101.ston' writeStreamDo: [ :stream | stream nextPutAll: '101' ].
+	filesystem / 'dir' / 'games.49.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'games.5.ston' writeStreamDo: [ :stream | stream nextPutAll: '5' ].
+	
+	childFiles := (filesystem root / 'dir') files.
+	self assert: childFiles size equals: 7.
+	self assert: ((filesystem root / 'dir') nextNameFor: 'games' extension: 'ston') equals: 'games.102.ston'.
+
+	
+			]
+			ensure: [ (filesystem / 'dir') ensureDeleteAll ]
+]
+
+{ #category : #'tests - handy utils' }
+FileReferenceTest >> testNextNameForExtensionBrokenPattern [
+	
+	| childFiles |
+	[ filesystem createDirectory: 'dir'.
+filesystem / 'dir' / 'games.51.ston' writeStreamDo: [ :stream | stream nextPutAll: '51' ].
+	filesystem / 'dir' / 'games.ston' writeStreamDo: [ :stream | stream nextPutAll: 'nonumber' ].
+	filesystem / 'dir' / 'games.stf' writeStreamDo: [ :stream | stream nextPutAll: 'wrong extension' ].
+	filesystem / 'dir' / 'games.101.ston' writeStreamDo: [ :stream | stream nextPutAll: '101' ].
+	filesystem / 'dir' / 'games.250.49.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'games.1000.1000.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'zorglub.500.ston' writeStreamDo: [ :stream | stream nextPutAll: '5' ].
+	
+	childFiles := (filesystem root / 'dir') files.
+	self assert: childFiles size equals: 7.
+	self assert: ((filesystem root / 'dir') nextNameFor: 'games' extension: 'ston') equals: 'games.102.ston'.
+
+	
+			]
+			ensure: [ (filesystem / 'dir') ensureDeleteAll ]
+]
+
+{ #category : #'tests - handy utils' }
+FileReferenceTest >> testNextNameForExtensionNegativeTesting [
+	"When there is no file with the given pattern, then we default patterned name should be returned."
+	
+	[ filesystem createDirectory: 'dir'.
+	filesystem / 'dir' / 'games.51.ston' writeStreamDo: [ :stream | stream nextPutAll: '51' ].
+	filesystem / 'dir' / 'games.4.ston' writeStreamDo: [ :stream | stream nextPutAll: '4' ].
+	filesystem / 'dir' / 'games.101.ston' writeStreamDo: [ :stream | stream nextPutAll: '101' ].
+	filesystem / 'dir' / 'games.49.ston' writeStreamDo: [ :stream | stream nextPutAll: '49' ].
+	filesystem / 'dir' / 'games.5.ston' writeStreamDo: [ :stream | stream nextPutAll: '5' ].
+
+	self assert: ((filesystem root / 'dir') nextNameFor: 'games' extension: 'stf') equals: 'games.1.stf'.
+   self assert: ((filesystem root / 'dir') nextNameFor: 'plouf' extension: 'ston') equals:  'plouf.1.ston'.
+	] ensure: [ (filesystem / 'dir') ensureDeleteAll ]
 ]
 
 { #category : #tests }
@@ -653,15 +755,13 @@ FileReferenceTest >> testParent [
 { #category : #tests }
 FileReferenceTest >> testParentResolutionWithAbsoluteReference [
 	| base relative absolute |
-	base := (filesystem / '/plonk' / 'pinto').
-	relative := (FileSystem memory / 'griffle' / 'zonk').
+	base := filesystem / '/plonk' / 'pinto'.
+	relative := filesystem / 'griffle' / 'zonk'.
 	absolute := base resolve: relative.
 	self assert: absolute fileSystem == relative fileSystem.
 	self assert: absolute isAbsolute.
-	self assert: (absolute path at: 1) = 'griffle'.
-	self assert: (absolute path at: 2) = 'zonk'.
-	
-	
+	self assert: (absolute path at: 1) equals: 'griffle'.
+	self assert: (absolute path at: 2) equals: 'zonk'
 ]
 
 { #category : #tests }
@@ -690,13 +790,11 @@ FileReferenceTest >> testParentResolutionWithReference [
 { #category : #tests }
 FileReferenceTest >> testParentResolutionWithRemoteReference [
 	| base relative absolute |
-	base := (filesystem / 'plonk' / 'pinto').
-	relative := (FileSystem memory referenceTo: '../griffle/zonk').
+	base := filesystem / 'plonk' / 'pinto'.
+	relative := filesystem referenceTo: '../griffle/zonk'.
 	absolute := base resolve: relative.
 	self assert: absolute isAbsolute.
-	self assert: absolute path segments equals: #('plonk' 'pinto' '..' 'griffle' 'zonk').
-	
-	
+	self assert: absolute path segments equals: #('plonk' 'pinto' '..' 'griffle' 'zonk')
 ]
 
 { #category : #tests }
@@ -732,20 +830,19 @@ FileReferenceTest >> testReadStream [
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	[stream := ref readStream. ] 
-		ensure: [ stream ifNotNil: [ stream close ] ]
+	[ [ stream := ref readStream ]
+		ensure: [ stream ifNotNil: [ stream close ] ] ]
+		ensure: [ ref delete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testReadStreamDo [
-	| ref path s |
+	| ref path |
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	ref
-		readStreamDo: [ :stream | 
-			self deny: stream isNil.
-			s := stream ].
+	[ ref readStreamDo: [ :stream | self deny: stream isNil ] ]
+		ensure: [ ref delete ]
 ]
 
 { #category : #'tests stream' }
@@ -759,15 +856,12 @@ FileReferenceTest >> testReadStreamDoNotFound [
 
 { #category : #tests }
 FileReferenceTest >> testReadStreamDoifAbsent [
-	| ref path s |
+	| ref path |
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	ref
-		readStreamDo: [ :stream | 
-			self deny: stream isNil.
-			s := stream ]
-		ifAbsent: [ self signalFailure: 'The file exists!' ].
+	[ ref readStreamDo: [ :stream | self deny: stream isNil ] ifAbsent: [ self signalFailure: 'The file exists!' ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
@@ -787,10 +881,9 @@ FileReferenceTest >> testReadStreamIfAbsent [
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	[ 
-	stream := ref readStreamIfAbsent: [ self signalFailure: 'Should not reach here.' ].
-	 ] 
-		ensure: [ stream ifNotNil: [ stream close ] ]
+	[ [ stream := ref readStreamIfAbsent: [ self signalFailure: 'Should not reach here.' ] ]
+		ensure: [ stream ifNotNil: [ stream close ] ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
@@ -822,23 +915,16 @@ FileReferenceTest >> testRelativeToReference [
 
 { #category : #tests }
 FileReferenceTest >> testRename [
-
-	| file tmp originalPwd originalFullName |
-	[
-		file := (FileLocator imageDirectory / 'oldName') ensureCreateFile.
-		originalFullName := file fullName.
-		tmp := (FileLocator imageDirectory / 'tmp') ensureCreateDirectory.
-		originalPwd := FileSystem disk workingDirectory.
-		
-		file renameTo: 'newName'.
-		
-		self deny: originalFullName asFileReference exists.
-		self assert: file basename equals: 'newName'.
-		self assert: (originalFullName asFileReference parent / 'newName') exists		
-	] ensure: [
-		file delete.
-		tmp deleteAll.
-	].
+	| file tmp originalFullName |
+	[ file := (FileLocator imageDirectory / 'oldName') ensureCreateFile.
+	originalFullName := file fullName.
+	tmp := (FileLocator imageDirectory / 'tmp') ensureCreateDirectory.
+	file renameTo: 'newName'.
+	self deny: originalFullName asFileReference exists.
+	self assert: file basename equals: 'newName'.
+	self assert: (originalFullName asFileReference parent / 'newName') exists ]
+		ensure: [ file delete.
+			tmp deleteAll ]
 ]
 
 { #category : #tests }
@@ -984,44 +1070,42 @@ FileReferenceTest >> testWorkingDirectoryParent [
 FileReferenceTest >> testWriteStream [
 	| ref stream |
 	ref := filesystem / 'plonk'.
-	[stream := ref writeStream.]
-		ensure: [stream ifNotNil: [stream close]]
+	[ [ stream := ref writeStream ]
+		ensure: [ stream ifNotNil: [ stream close ] ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testWriteStreamDo [
 	| ref s |
 	ref := filesystem / 'plonk'.
-	ref writeStreamDo:
-		[:stream |
-		s := stream.
-		self deny: stream isNil ].
-		
+	[ ref
+		writeStreamDo: [ :stream | 
+			s := stream.
+			self deny: stream isNil ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testWriteStreamDoExists [
-	| ref s path |
+	| ref path |
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	ref
-		writeStreamDo: [ :stream | 
-			s := stream.
-			self deny: stream isNil ].
+	[ ref writeStreamDo: [ :stream | self deny: stream isNil ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testWriteStreamDoifPresent [
 	| ref s |
 	ref := filesystem / 'plonk'.
-	ref 
-		writeStreamDo:
-			[:stream |
+	[ ref
+		writeStreamDo: [ :stream | 
 			s := stream.
 			self deny: stream isNil ]
-		ifPresent: [self signalFailure: 'The file does not exist!'].
-		
+		ifPresent: [ self signalFailure: 'The file does not exist!' ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
@@ -1031,8 +1115,9 @@ FileReferenceTest >> testWriteStreamDoifPresentNot [
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	ref writeStreamDo: [ :stream |  ] ifPresent: [ pass := true ].
-	self assert: pass
+	[ ref writeStreamDo: [ :stream |  ] ifPresent: [ pass := true ].
+	self assert: pass ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
@@ -1041,16 +1126,18 @@ FileReferenceTest >> testWriteStreamExists [
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	[stream := ref writeStream ] 
-		ensure: [ stream ifNotNil: [ stream close ] ]
+	[ [ stream := ref writeStream ]
+		ensure: [ stream ifNotNil: [ stream close ] ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
 FileReferenceTest >> testWriteStreamifPresent [
 	| ref stream |
 	ref := filesystem / 'plonk'.
-	[stream := ref writeStreamIfPresent: [self signalFailure: 'Should not reach here']]
-		ensure: [stream ifNotNil: [stream close]]
+	[ [ stream := ref writeStreamIfPresent: [ self signalFailure: 'Should not reach here' ] ]
+		ensure: [ stream ifNotNil: [ stream close ] ] ]
+		ensure: [ ref ensureDelete ]
 ]
 
 { #category : #tests }
@@ -1060,6 +1147,7 @@ FileReferenceTest >> testWriteStreamifPresentExists [
 	path := Path * 'plonk'.
 	filesystem store createFile: path.
 	ref := filesystem referenceTo: path.
-	ref writeStreamIfPresent: [ pass := true ].
-	self assert: pass
+	[ ref writeStreamIfPresent: [ pass := true ].
+	self assert: pass ]
+		ensure: [ ref ensureDelete ]
 ]

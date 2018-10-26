@@ -13,7 +13,7 @@ Class {
 		'textMorphClass',
 		'textFont'
 	],
-	#category : #'Morphic-Widgets-Pluggable'
+	#category : #'Morphic-Widgets-Pluggable-Text'
 }
 
 { #category : #'model access' }
@@ -120,8 +120,8 @@ PluggableTextFieldMorph >> drawOn: aCanvas [
 					aCanvas 
 						drawString: self ghostText
 						in: ghostBounds
-						font: self theme  textFont
-						color: Color lightGray]].
+						font: self theme textFont
+						color: self theme ghostTextColor]].
 	entryCompletion 
 		ifNotNil: [entryCompletion closeIfNotNeeded: self].
 ]

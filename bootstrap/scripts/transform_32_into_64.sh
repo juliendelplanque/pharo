@@ -6,9 +6,9 @@ set -o xtrace
 
 #Load VMMaker, used to convert images from 32 to 64 bits
 mkdir -p vmmaker && cd vmmaker
-wget https://ci.inria.fr/pharo/view/5.0-VM-Spur/job/Spur-Git-Tracker/lastSuccessfulBuild/artifact/vmmaker-image.zip
+wget https://github.com/pharo-project/pharo-32to64-converter/releases/download/v1.0.0/vmmaker-image.zip
 unzip vmmaker-image.zip
-wget -O - http://get.pharo.org/vm60 | bash
+../../bootstrap/scripts/getPharoVM.sh 60
 wget http://files.pharo.org/sources/PharoV50.sources
 cd ..
 
@@ -48,7 +48,14 @@ for f in Pharo7.0-32bit-*.zip; do
 	
 	mv "tempconversion-64.image" "Pharo7.0-64bit-$HASH.image"
 	mv "tempconversion-64.changes" "Pharo7.0-64bit-$HASH.changes"
-	zip Pharo7.0-64bit-$HASH.zip Pharo7.0-64bit-$HASH.* ${IMAGENAME}.sources
+	
+	# fix the display size in the image header (position 40 [zero based], 24 for 32-bit image)
+	# in older versions we must use octal representation
+	printf "\231\002\320\003" > displaySize.bin
+	dd if="displaySize.bin" of="Pharo7.0-64bit-$HASH.image" bs=1 seek=40 count=4 conv=notrunc
+	
+	echo "70" > pharo.version
+	zip Pharo7.0-64bit-$HASH.zip Pharo7.0-64bit-$HASH.* ${IMAGENAME}.sources pharo.version
 	rm -f *.image *.changes *.sources
 done
 

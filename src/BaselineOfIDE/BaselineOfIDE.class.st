@@ -2,7 +2,11 @@
 This baseline is used to generate Pharo images from the local clone of pharo-project/pharo repository. 
 
 Depends on:
-- ConfigurationOfUI
+- BasicTools
+- Traits
+- Shift
+- Slots
+- Athens
 
 Load type: 
 - linear
@@ -14,7 +18,6 @@ Installs:
 - refactoring
 - GT Tools
 - Versionner
-- Athens
 - TxText
 - OSWindow
 - QualityAssistant
@@ -29,60 +32,6 @@ Class {
 	],
 	#category : #BaselineOfIDE
 }
-
-{ #category : #actions }
-BaselineOfIDE >> addPharoProjectToIceberg [
-	"It will take all packages corresponding to Pharo project and it will create an iceberg 
-	 project with it"
-	| packageNames extraPackageNames repository commit |
-	
-	self flag: #TODO. "Refactor into something better (a class and a hierarchy, so we can add 
-	other packages)"
-	
-	"extract package names from baselines"
-	packageNames := (#(
-		BaselineOfBasicTools
-		BaselineOfDisplay
-		BaselineOfIDE  
-		BaselineOfMonticello 
-		BaselineOfMetacello 
-		BaselineOfMorphic 
-		BaselineOfMorphicCore 
-		BaselineOfPharo
-		BaselineOfPharoBootstrap
-		BaselineOfSUnit 
-		BaselineOfShift 
-		BaselineOfSpec
-		BaselineOfTraits
-		BaselineOfUI    
-		BaselineOfUnifiedFFI ) 
-		collect: [ :each | (Smalltalk globals at: each) allPackageNames copyWith: each ]) 
-		flattened 
-		asSet.
-	"for some reason, there are packages loaded manually and not from a baseline"
-	extraPackageNames := #('Compiler').
-	"declare project"
-	
-	commit := (IceUnknownCommit new 
-			id: SystemVersion current commitHash;
- 			yourself).
-	
-	repository := IceLibgitRepository new
-		name: 'pharo';
-		workingCopy: (IceWorkingCopy new
-		referenceCommit: commit
-		yourself).
-		
-	commit repository: repository.
-	"add packages to project"
-	(packageNames, extraPackageNames)
-		do: [ :each |
-			repository workingCopy basicAddPackage: (IcePackage
-				named: each
-				repository: repository) ].
-	"register project"
-	repository register
-]
 
 { #category : #actions }
 BaselineOfIDE >> additionalInitialization [
@@ -100,7 +49,7 @@ BaselineOfIDE >> additionalInitialization [
 	self class environment at: #GTInspector ifPresent: [:inspector | 
 	  Smalltalk tools register: inspector as: #inspector.].
 
-	  Smalltalk tools register: ExternalChangesBrowser as: #changeList.
+	Smalltalk tools register: ExternalChangesBrowser as: #changeList.
 	Smalltalk tools register: FileList as: #fileList.
 	Smalltalk tools register: Finder as: #finder.
 	Smalltalk tools register: ProcessBrowser as: #processBrowser.
@@ -113,6 +62,7 @@ BaselineOfIDE >> additionalInitialization [
 
 	PolymorphSystemSettings desktopColor:  Color veryVeryLightGray lighter.
 	SourceCodeFonts setSourceCodeFonts: 10.
+	LogicalFontManager unload.
 	FreeTypeSystemSettings loadFt2Library: true.
 	FreeTypeSettings current monitorType: #LCD.
 	FreeTypeSettings current glyphContrast: 55.
@@ -122,9 +72,6 @@ BaselineOfIDE >> additionalInitialization [
 	RealEstateAgent usedStrategy: #cascadeFor:initialExtent:world:.
 	GrowlMorph position: #bottomLeft.
 	ShortcutReminder enabled: true.
-
-	self class environment at: #QASettings ifPresent: [:qaSettings |
-	  qaSettings nautilusPlugin: true].
 
 	KMRepository reset.
 	Morph shortcutsHandler: KMShortcutHandler new.
@@ -155,8 +102,6 @@ BaselineOfIDE >> additionalInitialization [
 	
 	self loadIceberg.	
 	self loadCalypso.
-	
-	self addPharoProjectToIceberg.
 ]
 
 { #category : #baseline }
@@ -171,7 +116,10 @@ BaselineOfIDE >> baseline: spec [
 	spec for: #common do: [
 		spec postLoadDoIt: #'postload:package:'.
 		
-		spec baseline: 'BasicTools' with: [spec repository: repository].
+		spec baseline: 'BasicTools' with: [ spec repository: repository ].
+		
+		spec baseline: 'Athens' with: [ spec repository: repository ].
+		spec baseline: 'Flashback' with: [ spec repository: repository ].
 
 		spec baseline: 'Shift' with: [
 			spec loads: 'shift-tests'. 
@@ -180,6 +128,11 @@ BaselineOfIDE >> baseline: spec [
 
 		spec baseline: 'Traits' with: [
 			spec loads: 'traits-tests'. 
+			spec repository: repository
+		].
+	
+		spec baseline: 'Slot' with: [
+			spec loads: 'slot-tests'. 
 			spec repository: repository
 		].
 
@@ -191,10 +144,10 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Epicea'.
 		spec package: 'Hiedra'.
 		spec package: 'EpiceaBrowsers'.
-		spec package: 'HiedraTests'. 
-		spec package: 'OmbuTests'.
-		spec package: 'EpiceaTests'.
-		spec package: 'EpiceaBrowsersTests'.
+		spec package: 'Hiedra-Tests'. 
+		spec package: 'Ombu-Tests'.
+		spec package: 'Epicea-Tests'.
+		spec package: 'EpiceaBrowsers-Tests'.
 
 		
 		spec package: 'Shout'.
@@ -202,7 +155,6 @@ BaselineOfIDE >> baseline: spec [
 
 		spec package: 'Rubric-Styling'.
 		
-		spec package: 'Flashback-Decompiler'.
 		spec package: 'BlueInk-Core'.
 		
 		spec package: 'Collections-Tests'.
@@ -216,6 +168,7 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Fuel-Tools-Pharo'.
 		spec package: 'Gofer-Tests'.
 		spec package: 'Kernel-Tests'.
+		spec package: 'Kernel-Tests-Extended'.
 		spec package: 'Kernel-Tests-WithCompiler'.
 		spec package: 'Manifest-Core'.
 		spec package: 'Manifest-Resources-Tests'.
@@ -242,6 +195,7 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Metacello-TestsMCCore'.	"standalone"
 		spec package: 'Metacello-TestsPlatform'.	"standalone"
 		spec package: 'Metacello-TestsReference'.	"standalone"
+		spec package: 'Metacello-Gitlab-Tests'.
 
 		spec package: 'RPackage-Tests'.
 		spec package: 'Monticello-Tests'.
@@ -288,17 +242,8 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Moose-Algos-Graph'.
 		spec package: 'Tool-DependencyAnalyser'.
 		spec package: 'Tool-DependencyAnalyser-UI'.
-		spec package: 'Tool-DependencyAnalyser-Test'.	"standalone"
-		spec package: 'Tool-DependencyAnalyser-Test-Data'.	"standalone"
-
-		spec package: 'Athens-Core'.
-		spec package: 'Athens-Text'.
-		spec package: 'Athens-Balloon'.
-		spec package: 'Athens-Morphic'.
-		spec package: 'Athens-CairoPools'.
-		spec package: 'Athens-Cairo'.
-		spec package: 'Athens-Examples'. 
-		spec package: 'Athens-Tests-Cairo'.
+		spec package: 'Tool-DependencyAnalyser-Tests'.	"standalone"
+		spec package: 'Tool-DependencyAnalyser-Tests-Data'.	"standalone"
  
 		spec package: 'Kernel-Rules'.
 		spec package: 'SmartSuggestions'.
@@ -313,6 +258,7 @@ BaselineOfIDE >> baseline: spec [
 				
 		spec package: 'System-CommandLine-TextSupport'.
 		spec package: 'GeneralRules'.
+		spec package: 'GeneralRules-Tests'.
 		spec package: 'FuzzyMatcher'.
 		spec package: 'STON-Text support'.
 		
@@ -339,7 +285,6 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'FileSystem-Tests-Attributes'.
 		spec package: 'Files-Prompt'.
 		spec package: 'Files-Tests'.
-		spec package: 'Flashback-Decompiler-Tests'.
 		spec package: 'FontInfrastructure-Tests'.
 		spec package: 'FreeType-Tests'.
 		spec package: 'FreeType-Help'.
@@ -362,6 +307,7 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Manifest-Tests'.
 		spec package: 'Morphic-Tests'.
 		spec package: 'Multilingual-Tests'.
+		spec package: 'NewValueHolder-Tests'.		
 		spec package: 'NECompletion-Tests'.
 		spec package: 'NodeNavigation-Tests'.
 		spec package: 'OSWindow-SDL2-Examples'.
@@ -391,7 +337,6 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'SUnit-Tests'.
 		spec package: 'SUnit-Support-UITesting-Tests'.
 		spec package: 'Shout-Tests'.
-		spec package: 'Slot-Tests'.
 		spec package: 'SmartSuggestions-Tests'.
 		spec package: 'Spec-Help'.	
 		spec package: 'Spec-Tests'.
@@ -409,7 +354,8 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'Tool-FileList-Tests'.
 		spec package: 'Tools-Test'.	
 		spec package: 'Zinc-Character-Encoding-Tests'.
-		spec package: 'Zinc-Resource-Meta-FileSystem'.	
+		spec package: 'Zinc-Resource-Meta-FileSystem'.			
+		spec package: 'Zinc-HTTP-Examples'.
 		spec package: 'Zinc-Tests'.
 		spec package: 'System-Identification-Tests'.
 
@@ -418,6 +364,10 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'BaselineOfMetacello'.
 		
 		spec package: 'ReferenceFinder-Core'.
+
+		spec package: 'Refactoring2-Core'.
+		spec package: 'Refactoring2-Transformations'.
+		spec package: 'Refactoring2-Transformations-Tests'.
 
       self groups: spec.
 	].
@@ -434,7 +384,7 @@ spec group: 'Mandatory-Group' with: #(
 ). 
 
 spec group: 'Optional-Group' with: #(
-	'Athens-Group' "dependency"
+	'Athens' "dependency"
 
 	'PharoDocComment'	"standalone"
 	'STON-Text support'	"standalone?"
@@ -451,16 +401,16 @@ spec group: 'NodeNavigation-Group' with: #(
 ).					
 
 spec group: 'Epicea-Core-Group' with: #(
-	'Athens-Group' "dependency of Hiedra"
+	'Athens' "dependency of Hiedra"
 	'Ombu'
 	'Epicea'
 	'Hiedra'
 	'EpiceaBrowsers').
 spec group: 'Epicea-Tests-Group' with: #(
-	'OmbuTests'
-	'EpiceaTests'
-	'HiedraTests'
-	'EpiceaBrowsersTests'
+	'Ombu-Tests'
+	'Epicea-Tests'
+	'Hiedra-Tests'
+	'EpiceaBrowsers-Tests'
 ).	
 spec group: 'Epicea-Group' with: #(
 	'Epicea-Core-Group' 
@@ -486,6 +436,7 @@ spec group: 'General-Tests-Group' with: #(
 	'MetacelloCommandLineHandler-Tests'
 	'Debugger-Tests'
 	'EmbeddedFreeType-Tests'
+	'Epicea-Tests-Group'
 	'FileSystem-Tests-Memory'
 	'FontInfrastructure-Tests'
 	'FreeType-Tests'
@@ -499,9 +450,8 @@ spec group: 'General-Tests-Group' with: #(
 
 	'Morphic-Tests'
 	'NECompletion-Tests'
-	'OmbuTests'
+	'NewValueHolder-Tests'
 	'ProfStef-Tests'
-
 	'Reflectivity-Tools-Tests'
 	'Regex-Tests-Core'
 	'Ring-Deprecated-Tests-Monticello'
@@ -509,8 +459,7 @@ spec group: 'General-Tests-Group' with: #(
 	'ScriptingExtensions-Tests'
 	'STON-Tests'
 	'SUnit-Tests'
-	'SUnit-Support-UITesting-Tests' 
-	'Slot-Tests'
+	'SUnit-Support-UITesting-Tests'
 	'Spec-Tests'
 	'System-Caching-Tests'
 	'System-Hashing-Tests'
@@ -524,6 +473,7 @@ spec group: 'General-Tests-Group' with: #(
 	'Tools-Test'
 	'Zinc-Resource-Meta-FileSystem'	
 	'Zinc-Resource-Meta-Tests'
+	'Zinc-HTTP-Examples'
 	'Zinc-Tests'	"requires Zinc-Resource-Meta-Tests"
 	'System-Identification-Tests'		
 	'System-DependenciesTests'
@@ -589,17 +539,6 @@ spec group: 'Manifest-Group' with: #(
 	'Manifest-Tests-Group'
 ).
 
-spec group: 'Flashback-Core-Group' with: #(
-	'Flashback-Decompiler'
-).
-spec group: 'Flashback-Tests-Group' with: #(
-	'Flashback-Decompiler-Tests'
-).
-spec group: 'Flashback-Group' with: #(
-	'Flashback-Core-Group'
-	'Flashback-Tests-Group'
-).
-
 spec group: 'BlueInk-Core-Group' with: #(
 	'BlueInk-Core'
 	'BlueInk-Extras'
@@ -632,7 +571,8 @@ spec group: 'Metacello-Tests-Group' with: #(
 	'Metacello-TestsMC'	
 	'Metacello-TestsMCCore'	
 	'Metacello-TestsPlatform'	
-	'Metacello-TestsReference'	
+	'Metacello-TestsReference'
+	'Metacello-Gitlab-Tests'
 ).
 
 spec group: 'Refactoring-Rules-Group' with: #(
@@ -702,7 +642,7 @@ spec group: 'QualityAssistant-Group' with: #(
 spec group: 'Glamour-Core-Group' with: #(
 	'Shout-Core-Group'  "dependecy"
 	"circular dependency on 'Glamour-Tests-Group', 'GT-Core-Group'"
-	'Athens-Group' "dependency"
+	'Athens' "dependency"
 	'Glamour-Announcements'
 	'Glamour-Helpers'
 	'Glamour-Core'
@@ -765,30 +705,18 @@ spec group: 'DependencyAnalyser-Core-Group' with: #(
 	'Tool-DependencyAnalyser-UI'
 ).
 spec group: 'DependencyAnalyser-Tests-Group' with: #(
-	'Tool-DependencyAnalyser-Test'	
-	'Tool-DependencyAnalyser-Test-Data'	
+	'Tool-DependencyAnalyser-Tests'	
+	'Tool-DependencyAnalyser-Tests-Data'	
 ).
 spec group: 'DependencyAnalyser-Group' with: #(
 	'DependencyAnalyser-Core-Group'
 	'DependencyAnalyser-Tests-Group'
-).		
-
-spec group: 'Athens-Group' with: #(
-	"dependent on Rubric, cleanup?"
-	'Athens-Core'
-	'Athens-Text'
-	'Athens-Balloon'
-	'Athens-Morphic'
-	'Athens-CairoPools'
-	'Athens-Cairo'
-	'Athens-Examples'
-   'Athens-Tests-Cairo'
-).		
+).	
 
 spec group: 'OSWindow-Core-Group' with: #(
 	'Glamour-Core-Group'	"dependency, cleanup needed"
 	'GT-Core-Group'	"dependency, cleanup needed"
-	'Athens-Group' "dependency"
+	'Athens' "dependency"
 	'OSWindow-Core'
 	'OSWindow-SDL2'
 	'OSWindow-VM'
@@ -808,6 +736,7 @@ spec group: 'Kernel-Tests-Group' with: #(
 	'CodeImport-Tests'	 
 	'Collections-Tests'
 	'Kernel-Tests' 
+	'Kernel-Tests-Extended' 
 	'Kernel-Tests-WithCompiler' 
 	'AST-Tests-Core' "requires BlueInk-Core"
 	'Announcements-Tests-Core'
@@ -830,8 +759,15 @@ spec group: 'Kernel-Tests-Group' with: #(
 	'Text-Tests'		"required by Multilingual-Tests"
 ).
 
+spec group: 'Refactoring2-Group' with: #(
+	'Refactoring2-Core'
+	'Refactoring2-Transformations'
+	'Refactoring2-Transformations-Tests'
+).
+
 spec group: 'GT&QA-Group' with: #(
 	'GeneralRules'		"depends on QA, needs cleanup"
+	'GeneralRules-Tests' "depends on QA, needs cleanup"
 	'Kernel-Rules'		"depends on QA, DependencyAnalyzer, needs cleanup"
 
 	'ReleaseTests' 		"required by Manifest-Core Refactoring-Critics"
@@ -852,10 +788,11 @@ spec group: 'GT&QA-Group' with: #(
 
 spec group: #default with: #(
 	'BasicTools'	"dependency"
+	'Athens'
+	'Flashback'
 
 	'Mandatory-Group'
 
-	'Athens-Group'
 	'Kernel-Tests-Group'
 	'BlueInk-Group'
 
@@ -867,7 +804,6 @@ spec group: #default with: #(
 	'ReflectionMirrors-Group'
 	'Zodiac-Group'
 	'FuzzyMatcher-Group'
-	'Flashback-Group'
 
 	'GT&QA-Group'
 
@@ -890,6 +826,9 @@ spec group: #default with: #(
 	'Shift'
 	"Importing tests of Traits"
 	'Traits'
+	'Slot'
+	
+	'Refactoring2-Group'
 ).
 
 ]
@@ -899,11 +838,12 @@ BaselineOfIDE >> loadCalypso [
 
 	"Load Calypso without Iceberg Metacello integration"
 	(self class environment at: #Iceberg) enableMetacelloIntegration: false.
-		
+
 	Metacello new
 		baseline: 'Calypso';
-		repository: 'github://pharo-ide/Calypso:v0.11.3';
+		repository: 'github://pharo-ide/Calypso:v0.11.5';
 		onConflict: [ :err | err useIncoming ];
+		onUpgrade: [ :err | err useIncoming ];
 		load: #('FullEnvironment' 'SystemBrowser' 'Tests').
 
 	(self class environment at: #ClyBrowser) beAllDefault.
@@ -915,10 +855,10 @@ BaselineOfIDE >> loadCalypso [
 BaselineOfIDE >> loadIceberg [
 	Metacello new
 		baseline: 'Iceberg';
-		repository: 'github://pharo-vcs/iceberg:v0.7.5';
+		repository: 'github://pharo-vcs/iceberg:v1.2.2';
 		load.
 	(Smalltalk classNamed: #Iceberg) enableMetacelloIntegration: true.
-
+	(Smalltalk classNamed: #IcePharoPlugin) addPharoProjectToIceberg.
 ]
 
 { #category : #actions }
@@ -940,25 +880,22 @@ BaselineOfIDE >> postload: loader package: packageSpec [
 		yourself.
 		
 	gofer := Gofer it repository: repo.
-	gofer package: #'Compiler'.
 	gofer package: #'RPackage-Tests'.
 	gofer load.
 	
 	MCMethodDefinition initializersEnabled: initializersEnabled.
-
-	(Smalltalk at: #ParseNode) initialize.
-	(Smalltalk at: #Scanner) initialize.
-	(Smalltalk at: #Decompiler) initialize.
-	(Smalltalk at: #MessageNode) initialize.
-	(Smalltalk at: #VariableNode) initialize.
 	
 	Smalltalk tools register: GTGenericStackDebugger as: #debugger.	
 
 	Smalltalk cleanOutUndeclared. 
 
-	FileStream stdout nextPutAll: ' ------------ Obsolete ------------'; lf.
-	FileStream stdout nextPutAll: SystemNavigation default obsoleteClasses asString; lf.
-	FileStream stdout nextPutAll: ' ............ Obsolete ............'; lf.
+	Stdio stdout 
+		nextPutAll: ' ------------ Obsolete ------------';
+		lf;
+		nextPutAll: SystemNavigation default obsoleteClasses asString;
+		lf;
+		nextPutAll: ' ............ Obsolete ............';
+		lf.
 
 	Smalltalk fixObsoleteReferences.
 	

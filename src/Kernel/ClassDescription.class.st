@@ -26,7 +26,7 @@ ClassDescription >> acceptsLoggingOfCompilation [
 ]
 
 { #category : #'accessing method dictionary' }
-ClassDescription >> addAndClassifySelector: selector withMethod: compiledMethod inProtocol: category notifying: requestor [
+ClassDescription >> addAndClassifySelector: selector withMethod: compiledMethod inProtocol: category [
 	| priorMethodOrNil priorOriginOrNil oldProtocol newProtocol |
 	
 	priorMethodOrNil := self 
@@ -181,7 +181,10 @@ ClassDescription >> authors [
 
 { #category : #'accessing - deprecated parallel hierarchy ' }
 ClassDescription >> baseClass [
-	^self subclassResponsibility.
+	"This method is deprecated so consider to migrate."
+	self deprecated:  'Please use #instanceSide instead' transformWith:  '`@receiver baseClass' 
+						-> '`@receiver instanceSide'.
+	^ self instanceSide
 ]
 
 { #category : #organization }
@@ -196,7 +199,10 @@ ClassDescription >> basicOrganization: aClassOrg [
 
 { #category : #'accessing - deprecated parallel hierarchy ' }
 ClassDescription >> classClass [
-	^self subclassResponsibility.
+	"This method is deprecated so consider to migrate."
+	self deprecated:  'Please use #classSide instead' transformWith:  '`@receiver classClasss' 
+						-> '`@receiver classSide'.
+	^ self classSide
 ]
 
 { #category : #'filein/out' }
@@ -441,8 +447,7 @@ ClassDescription >> compile: text classified: category withStamp: changeStamp no
 	self 
 		addAndClassifySelector: selector 
 		withMethod: method 
-		inProtocol: category 
-		notifying: requestor.
+		inProtocol: category.
 			
 	self instanceSide 
 		noteCompilationOfMethod: method 
@@ -776,6 +781,19 @@ ClassDescription >> isInstanceSide [
 	"Point class isClassSide >>> false"
 	
 	^ self isClassSide not
+]
+
+{ #category : #testing }
+ClassDescription >> isLocalMethodsProtocol: aProtocol [
+	aProtocol methods ifEmpty: [ ^true ].
+	
+	^aProtocol methods anySatisfy: [ :each | self isLocalSelector: each]
+]
+
+{ #category : #testing }
+ClassDescription >> isLocalSelector: aSelector [
+	
+	^ self methodDict includesKey: aSelector
 ]
 
 { #category : #'accessing - deprecated parallel hierarchy ' }
@@ -1185,25 +1203,25 @@ ClassDescription >> tagsForMethods [
 	It supposed to not include any method tags inherited from Traits 
 	which is opposite to current Protocol implementation.
 	And extension protocol is not treated as tag"
-	| allProtocols tags |
-	allProtocols := self organization protocols 
-		reject: [ :each | each name = Protocol unclassified | each isExtensionProtocol ].
+	| allProtocols |
+	allProtocols := self organization protocols reject: [ :each | each name = Protocol unclassified | each isExtensionProtocol ].
 		
-	tags := OrderedCollection new.
-	allProtocols do: [ :each | tags add: each name ].
-
-	^tags
+	^ allProtocols select: [ :each | self isLocalMethodsProtocol: each ] thenCollect: #name
 ]
 
 { #category : #'accessing - deprecated parallel hierarchy ' }
 ClassDescription >> theMetaClass [
 	"This method is deprecated so consider to migrate."
+	self deprecated:  'Please use #classSide instead' transformWith:  '`@receiver theMetaClass' 
+						-> '`@receiver classSide'.
 	^ self classSide
 ]
 
 { #category : #'accessing - deprecated parallel hierarchy ' }
 ClassDescription >> theNonMetaClass [
 	"This method is deprecated so consider to migrate."
+	self deprecated:  'Please use #instanceSide instead' transformWith:  '`@receiver theNonMetaClass' 
+						-> '`@receiver instanceSide'.
 	^ self instanceSide
 ]
 

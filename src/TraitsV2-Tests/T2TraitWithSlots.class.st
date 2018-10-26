@@ -1,7 +1,10 @@
+"
+Unit test for traits with slots
+"
 Class {
 	#name : #T2TraitWithSlots,
 	#superclass : #T2AbstractTest,
-	#category : #'TraitsV2-Tests'
+	#category : #'TraitsV2-Tests-Tests'
 }
 
 { #category : #tests }
@@ -21,6 +24,28 @@ T2TraitWithSlots >> createT1 [
 		^ a + b + c
 	'.
 	^ t1
+]
+
+{ #category : #tests }
+T2TraitWithSlots >> testClassUsingStatefulTraits [
+
+	| t1 c1 |
+
+	t1 := self newTrait: #T1 with: #(aSlot).
+	c1 := self newClass: #C1 superclass: Object with: #() uses: { t1 }. 
+
+	self assertCollection: c1 slots hasSameElements: { c1 slotNamed: #aSlot }.
+]
+
+{ #category : #tests }
+T2TraitWithSlots >> testClassUsingStatefulTraitsAndLocalSlots [
+
+	| t1 c1 |
+
+	t1 := self newTrait: #T1 with: #(aSlot).
+	c1 := self newClass: #C1 superclass: Object with: #(anotherSlot) uses: { t1 }. 
+
+	self assertCollection: c1 slots hasSameElements: { c1 slotNamed: #aSlot. c1 slotNamed: #anotherSlot }
 ]
 
 { #category : #tests }

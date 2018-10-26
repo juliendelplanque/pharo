@@ -94,7 +94,7 @@ RBVariableNode >> initialize [
 
 { #category : #testing }
 RBVariableNode >> isDefinition [
-	^self parent isSequence
+	^self parent isSequence and: [ self parent defines: name ]
 ]
 
 { #category : #testing }
@@ -110,6 +110,22 @@ RBVariableNode >> isImmediateNode [
 { #category : #testing }
 RBVariableNode >> isRead [
 	^ self isWrite not and: [ self isUsed ]
+]
+
+{ #category : #testing }
+RBVariableNode >> isSelf [
+	"normally this method is not needed (if all the RBVariable creations create RBSelfNode instead but
+	since we do not control this."
+	
+	^ self name = 'self'
+]
+
+{ #category : #testing }
+RBVariableNode >> isSuper [
+	"normally this method is not needed (if all the RBVariable creations create RBSuperNode instead but
+	since we do not control this."
+	
+	^ self name = 'super'
 ]
 
 { #category : #testing }

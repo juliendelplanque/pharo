@@ -43,7 +43,7 @@ Class {
 	#instVars : [
 		'tools'
 	],
-	#category : #'Tool-Base'
+	#category : #'Tool-Base-Registration'
 }
 
 { #category : #misc }
@@ -65,7 +65,7 @@ ToolRegistry >> browseDirectToolReferences [
 	^  SystemNavigation new
 		browseMessageList: (
 			SystemNavigation new allMethodsSelect: [:m |
-				(m literals allButLast select: [:lit| lit isVariableBinding ]) includesAnyOf: bindings ] )
+				(m literals select: [:lit| lit isVariableBinding ]) includesAnyOf: bindings ] )
 		name: 'All direct references to tools to fix'
 ]
 

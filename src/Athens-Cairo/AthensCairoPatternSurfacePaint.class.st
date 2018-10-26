@@ -5,7 +5,7 @@ Class {
 	#name : #AthensCairoPatternSurfacePaint,
 	#superclass : #AthensCairoPatternPaint,
 	#pools : [
-		'AthensCairoDefs'
+		'AthensCairoDefinitions'
 	],
 	#category : #'Athens-Cairo-Paints'
 }
@@ -22,9 +22,8 @@ AthensCairoPatternSurfacePaint class >> createForSurface: anAthensCairoSurface [
 AthensCairoPatternSurfacePaint class >> primCreateForSurface: anAthensCairoSurface [
 	
 "	pattern = cairo_pattern_create_for_surface (image);"
-	<primitive: #primitiveNativeCall module: #NativeBoostPlugin>
 	
-	^self nbCall: #(AthensCairoPatternSurfacePaint cairo_pattern_create_for_surface(
+	^ self ffiCall: #(AthensCairoPatternSurfacePaint cairo_pattern_create_for_surface(
 		cairo_surface_t  anAthensCairoSurface ) )
 
 ]
@@ -43,7 +42,7 @@ AthensCairoPatternSurfacePaint >> athensFillRectangle: aRectangle on: aCanvas [
 	aCanvas fill
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensCairoPatternSurfacePaint >> direction: aPoint [ 
 	direction := aPoint.
 ]
@@ -65,12 +64,12 @@ AthensCairoPatternSurfacePaint >> initializeFor: anAthensCairoSurface [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensCairoPatternSurfacePaint >> origin: aPoint [ 
 	origin := aPoint.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 AthensCairoPatternSurfacePaint >> setMatrix: aMatrix [
 
 	aMatrix restoreAfter: [

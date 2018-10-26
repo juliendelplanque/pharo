@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -x
 set -e
 
@@ -7,9 +9,6 @@ mkdir vm
 cd vm
 echo `pwd`
 
-if [ ${BOOTSTRAP_ARCH} = "64" ]; then
-	ARCHFLAG=64/
-fi
+../bootstrap/scripts/getPharoVM.sh 70 vm $BOOTSTRAP_ARCH
 
-wget -O- get.pharo.org/${ARCHFLAG}vm70 | bash
 cd ..

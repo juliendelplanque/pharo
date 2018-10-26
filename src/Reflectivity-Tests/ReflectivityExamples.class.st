@@ -77,8 +77,7 @@ ReflectivityExamples >> exampleIfTrueIfFalse [
 
 { #category : #examples }
 ReflectivityExamples >> exampleIvarRead [
-	<sampleInstance>
-	^ivar 
+	^ivar
 ]
 
 { #category : #examples }
@@ -125,6 +124,11 @@ ReflectivityExamples >> examplePrimitiveMethod [
 	"returns image path"
 	<primitive: 121>
 	^ 2 + 3
+]
+
+{ #category : #examples }
+ReflectivityExamples >> exampleSelf [
+	self
 ]
 
 { #category : #examples }

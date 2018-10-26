@@ -275,6 +275,8 @@ CompilationContext class >> optionReadOnlyLiterals [
 
 { #category : #'options - settings API' }
 CompilationContext class >> optionReadOnlyLiterals: aBoolean [
+	(aBoolean and: [ Smalltalk vm supportsWriteBarrier not]) ifTrue: [ ^ OCReadOnlyVMWarning signal ].
+	
 	^ self writeDefaultOption: #optionReadOnlyLiterals value: aBoolean
 ]
 
@@ -320,7 +322,7 @@ CompilationContext class >> removeDefaultTransformationPlugin: aPlugin [
 CompilationContext class >> writeDefaultOption: option value: boolean [
 	boolean 
 		ifTrue: [ self defaultOptions add: option ]
-		ifFalse: [ self defaultOptions remove: option ]
+		ifFalse: [ self defaultOptions remove: option ifAbsent: []]
 ]
 
 { #category : #plugins }

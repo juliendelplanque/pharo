@@ -4,7 +4,7 @@ I'm an abstract class grouping generic methods for managing packages/classes/gro
 Class {
 	#name : #AbstractTool,
 	#superclass : #Model,
-	#category : #'Tool-Base'
+	#category : #'Tool-Base-Utilities'
 }
 
 { #category : #'world menu' }
@@ -13,8 +13,7 @@ AbstractTool class >> menuCommandOn: aBuilder [
 	(aBuilder item: #Tools)
 		order: 1.0;
 		target: self;
-		help: 'Set of tools to get a better Pharo experience.';
-		iconName: #toolsIcon
+		help: 'Set of tools to get a better Pharo experience.'
 ]
 
 { #category : #private }

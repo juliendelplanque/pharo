@@ -240,6 +240,18 @@ Object class >> whatIsAPrimitive [
 Object >> -> anObject [
 	"Answer an Association between self and anObject"
 	"the code of Association>>#key:value: is inline here for speed"
+	"The following example creates an association whose key is number 1 and value string 'one'.
+	1 -> 'one'
+	>>> 1 -> 'one'
+
+	(1 -> 'one') key
+	>>> 1
+
+	(1 -> 'one') value
+	>>> 'one'
+	
+	Note that key and value can be ANY object."
+	
 	^Association basicNew key: self value: anObject
 ]
 
@@ -351,8 +363,7 @@ Object >> asString [
 Object >> assert: aBlock [
 	"Throw an assertion error if aBlock does not evaluates to true.
 	We check for true explicitly to make the assertion fail for non booleans"
-	
-	aBlock value == true ifFalse: [AssertionFailure signal: 'Assertion failed']
+	self assert: aBlock description: 'Assertion failed'.
 ]
 
 { #category : #asserting }
@@ -761,6 +772,21 @@ Object >> deprecated: anExplanationString on: date in: version transformWith: aR
 ]
 
 { #category : #deprecation }
+Object >> deprecated: anExplanationString on: date in: version transformWith: aRule when: conditionBlock [
+	"Automatically tranform the deprecated call if it matches the condition"
+	
+	Deprecation new
+		context: thisContext sender;
+		explanation: anExplanationString;
+		date: date;
+		version: version;
+		rule: aRule;
+		condition: conditionBlock;
+		transform.
+		
+]
+
+{ #category : #deprecation }
 Object >> deprecated: anExplanationString transformWith: aRule [
 	"Automatically tranform the deprecated call"
 	
@@ -768,6 +794,19 @@ Object >> deprecated: anExplanationString transformWith: aRule [
 		context: thisContext sender;
 		explanation: anExplanationString;
 		rule: aRule;
+		transform.
+		
+]
+
+{ #category : #deprecation }
+Object >> deprecated: anExplanationString transformWith: aRule when: conditionBlock [
+	"Automatically tranform the deprecated call if it matches the condition"
+	
+	Deprecation new
+		context: thisContext sender;
+		explanation: anExplanationString;
+		rule: aRule;
+		condition: conditionBlock;
 		transform.
 		
 ]
@@ -798,6 +837,7 @@ Object >> displayStringOn: aStream [
 
 { #category : #'reflective operations' }
 Object >> doesNotUnderstand: aMessage [ 
+	<debuggerCompleteToSender>
 	 "Handle the fact that there was an attempt to send the given message to the receiver but the receiver does not understand this message (typically sent from the machine when a message is sent to the receiver and no method is defined for that selector)."
 	"Testing: (3 activeProcess)"
 		
@@ -940,13 +980,6 @@ Object >> halt: aString [
 Object >> haltIf: condition [
 	<debuggerCompleteToSender>
 	Halt if: condition.
-]
-
-{ #category : #halting }
-Object >> haltIfInsideTest [
-	"This is the typical message to use for inserting breakpoints during debugging."
-	<debuggerCompleteToSender>
-	Halt ifInsideTest
 ]
 
 { #category : #testing }
@@ -1780,11 +1813,6 @@ Object >> removeDependent: anObject [
 	dependents := self dependents reject: [:each | each == anObject].
 	self myDependents: (dependents isEmpty ifFalse: [dependents]).
 	^ anObject
-]
-
-{ #category : #'error handling' }
-Object >> requirement [
-	self error: 'Implicitly required method'
 ]
 
 { #category : #'class membership' }

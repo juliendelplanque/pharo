@@ -240,7 +240,7 @@ DiskStore >> delete: path [
 	| pathString encodedPathString |
 	
 	(self exists: path)
-		ifFalse: [ ^ FileDoesNotExist signalWith: path ].
+		ifFalse: [ ^ FileDoesNotExistException signalWith: path ].
 		
 	pathString := self stringFromPath: path.
 	encodedPathString := File encodePathString: pathString.
@@ -360,16 +360,6 @@ DiskStore >> nodeAt: aPath ifPresent: presentBlock ifAbsent: absentBlock [
 		ifFalse: [
 			entry at: 1 put: aPath basename.
 			presentBlock value: entry ].
-]
-
-{ #category : #public }
-DiskStore >> openFileStream: path writable: writable [
-	| fullPath |
-	fullPath := self stringFromPath: path.
-	"redirect over the default implementation"
-	^ writable 
-		ifFalse: [ FileStream readOnlyFileNamed: fullPath ]
-		ifTrue: [ FileStream fileNamed: fullPath ]
 ]
 
 { #category : #public }
