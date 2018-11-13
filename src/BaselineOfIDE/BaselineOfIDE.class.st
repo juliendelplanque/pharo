@@ -92,8 +92,6 @@ BaselineOfIDE >> additionalInitialization [
 	
 	PharoLightTheme beCurrent.
 	
-	Smalltalk ui theme settings secondarySelectionColor: (Color r: 0.927 g: 0.962 b: 0.995 alpha: 1.0).
-	
 	SDL_Event initialize.
 	
 	3 timesRepeat: [
@@ -139,6 +137,7 @@ BaselineOfIDE >> baseline: spec [
 		spec package: 'ReleaseTests'. 
 		spec package: 'Refactoring-Critics'.
 		spec package: 'NautilusRefactoring'.
+		spec package: 'NautilusRefactoring-Tests'.
 
 		spec package: 'Ombu'.
 		spec package: 'Epicea'.
@@ -774,6 +773,7 @@ spec group: 'GT&QA-Group' with: #(
 	'Reflectivity-Tools'	"required by Manifest-Core Refactoring-Critics"
 
 	'NautilusRefactoring'	"required by Epicea, SmartSuggestions"
+	'NautilusRefactoring-Tests'
 	'Refactoring-Critics'	"depends on QA, needs cleanup"
 
 	'Glamour-Group'
@@ -841,12 +841,12 @@ BaselineOfIDE >> loadCalypso [
 
 	Metacello new
 		baseline: 'Calypso';
-		repository: 'github://pharo-ide/Calypso:v0.11.5';
+		repository: 'github://pharo-ide/Calypso:v0.12.0/src';
 		onConflict: [ :err | err useIncoming ];
 		onUpgrade: [ :err | err useIncoming ];
 		load: #('FullEnvironment' 'SystemBrowser' 'Tests').
 
-	(self class environment at: #ClyBrowser) beAllDefault.
+	(self class environment at: #ClyBrowserMorph) beAllDefault.
 	
 	(self class environment at: #Iceberg) enableMetacelloIntegration: true.
 ]
@@ -855,7 +855,7 @@ BaselineOfIDE >> loadCalypso [
 BaselineOfIDE >> loadIceberg [
 	Metacello new
 		baseline: 'Iceberg';
-		repository: 'github://pharo-vcs/iceberg:v1.2.2';
+		repository: 'github://pharo-vcs/iceberg:v1.4.0';
 		load.
 	(Smalltalk classNamed: #Iceberg) enableMetacelloIntegration: true.
 	(Smalltalk classNamed: #IcePharoPlugin) addPharoProjectToIceberg.
